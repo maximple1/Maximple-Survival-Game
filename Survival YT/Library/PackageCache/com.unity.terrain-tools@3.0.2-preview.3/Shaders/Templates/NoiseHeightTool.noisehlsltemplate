@@ -1,0 +1,153 @@
+Shader ${ShaderCategory}
+{
+    Properties { _MainTex ("Texture", any) = "" {} }
+
+    SubShader
+    {
+        ZTest Always Cull OFF ZWrite Off
+
+        HLSLINCLUDE
+
+        #include "UnityCG.cginc"
+        #include "Packages/com.unity.terrain-tools/Shaders/TerrainTools.hlsl"
+
+        sampler2D _MainTex;
+        float4 _MainTex_TexelSize;      // 1/width, 1/height, width, height
+
+        float2 _WorldHeightRemap;
+        
+        // brush matrices
+        float4x4 _b2w; // brush to world
+        float4x4 _w2b; // world to brush
+        float4x4 _b2w_Rotation;
+        float4x4 _w2b_Rotation;
+        float4x4 _b2w_Translation;
+        float4x4 _w2b_Translation;
+        float4x4 _b2w_Scale;
+        float4x4 _w2b_Scale;
+
+        #define BRUSH_POSITION      ( _b2w_Translation._m03_m13_m23 )
+        #define BRUSH_ROTATION      ( 0 )
+        #define BRUSH_SCALE         ( _b2w_Scale._m00_m11_m22 )
+
+        sampler2D _BrushTex;
+        float4 _BrushParams;            // x = strength, y = , z = , w = brushSize
+        float4 _BasePos;
+        float4 _BaseSize;
+
+        float4 _Origin;
+        #define BRUSH_STRENGTH      ( _BrushParams[0] )
+        #define BRUSH_SIZE          ( _BrushParams[2] )
+        #define INV_BRUSH_SIZE      ( _BrushParams[3] )
+
+        struct appdata_t
+        {
+            float4 vertex : POSITION;
+            float2 pcUV : TEXCOORD0;
+        };
+
+        struct v2f
+        {
+            float4 vertex : SV_POSITION;
+            float2 pcUV : TEXCOORD0;
+        };
+
+        v2f vert( appdata_t v )
+        {
+            v2f o;
+            
+            o.vertex = UnityObjectToClipPos( v.vertex );
+            o.pcUV = v.pcUV;
+
+            return o;
+        }
+
+        ENDHLSL
+
+        BEGINPASSTEMPLATE
+
+        Pass // ${NoiseName} Noise
+        {
+            Name "${NoiseName} Noise"
+
+            HLSLPROGRAM
+
+            #pragma vertex vert
+            #pragma fragment frag
+
+            ${Includes}
+
+            inline float3 UVToWS( float3 pcUV )
+            {
+                // float2 pcPixels = pcUV * float2(pixelRect.width, pixelRect.height) - 0.5f;
+                // float2 texturePixels = pcPixels + pixelRect.min;
+
+                // float3 position_TerrainSpace =
+                //     float3(
+                //         texturePixels.x * pixelSize.x,
+                //         0.0f,
+                //         texturePixels.z * pixelSize.y);
+
+                // float3 position_WorldSpace = position_TerrainSpace + Terrain.position;
+                // return position_WorldSpace;
+
+
+                float3 rotatedOffset = mul( _w2b_Rotation, float4( BRUSH_POSITION, 0 ) ).xyz;
+                // rotatedOffset = mul( _w2b_Scale, float4( rotatedOffset, 0 ) ).xyz;
+                // rotatedOffset = mul( _w2b_Translation, float4( rotatedOffset, 0 ) ).xyz;
+
+                // need to adjust uvs due to "scaling" from brush rotation
+                float3 pcUVRescale = float3( length( _PCUVToBrushUVScales.xy ),
+                                             0, // unused since brush is 2D geometry
+                                             length( _PCUVToBrushUVScales.zw ) );
+
+                // float3 brushUV = ( pcUV - float3( .5, 0, .5 ) ); // brush-space position
+                // float3 pos = brushUV * BRUSH_SCALE * pcUVRescale + BRUSH_POSITION;
+
+                float3 brushUV = ( pcUV - float3( .5, 0, .5 ) ) * pcUVRescale;
+                float3 pos = brushUV;
+
+                // pos = mul( _b2w_Rotation, float4( pos, 1 ) ).xyz;
+                // pos = mul( _b2w_Scale, float4( pos, 1 ) ).xyz;
+                // pos = mul( _b2w_Translation, float4( pos, 1 ) ).xyz;
+                // // pos = mul( _w2b_Rotation, float4( pos, 1 ) ).xyz;
+                // // pos = mul( _w2b_Scale, float4( pos, 1 ) ).xyz;
+                // // pos += rotatedOffset * BRUSH_SCALE;d
+
+                pos *= BRUSH_SCALE;
+                pos += BRUSH_POSITION;
+                // pos = float3( -pos.z, 0, pos.x );
+
+                return pos;
+            }
+
+            float4 frag( v2f i ) : SV_Target
+            {
+                float height = UnpackHeightmap( tex2D( _MainTex, i.pcUV ) );
+
+                float2 brushUV = PaintContextUVToBrushUV( i.pcUV );
+                float oob = all( saturate( brushUV ) == brushUV ) ? 1 : 0;
+
+                // calc noise val for center of pixel
+                float3 pcUV = float3( i.pcUV.x, 0, i.pcUV.y ) + .5 * float3(1, 0, 1) * _MainTex_TexelSize.xxy;
+                float3 pos3D_worldSpace = UVToWS( pcUV );
+                float2 pos2D = pos3D_worldSpace.xz;
+
+                // out of bounds multiplier
+                float brushShape = oob * UnpackHeightmap( tex2D( _BrushTex, brushUV ) );
+
+                float3 pos3D_noiseSpace = ApplyNoiseTransform( pos3D_worldSpace );
+                pos2D = ApplyNoiseTransform( pos2D );
+
+                float noiseVal = noise_${VariantName}( pos3D_noiseSpace, ${GetInputs} );
+
+                // return PackHeightmap( clamp( height + BRUSH_STRENGTH * brushShape * noiseVal, 0, 0.5 ) );
+                return -1; // make sure this fails cuz we don't want to use this anymore
+            }
+
+            ENDHLSL
+        }
+
+        ENDPASSTEMPLATE
+    }
+}

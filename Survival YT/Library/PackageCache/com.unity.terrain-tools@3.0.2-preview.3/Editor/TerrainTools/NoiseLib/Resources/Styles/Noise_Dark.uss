@@ -1,0 +1,151 @@
+.noise-window
+{
+    flex-direction: row;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    position: absolute;
+}
+
+.noise-window__settings-container
+{
+    flex-direction: column;
+    width: 350px;
+    top: 0;
+    bottom: 0;
+}
+
+.noise-window__noise-asset-field-container
+{
+    background-color: #333333;
+    height: 30px;
+    min-height: 30px;
+    max-height: 30px;
+}
+
+.noise-window__noise-asset-field
+{
+    padding: 8px 8px 8px 8px;
+}
+
+.noise-window__settings-scrollview
+{
+    width: auto;
+    top: 0;
+    bottom: 0;
+}
+
+.noise-window__noise-gui-container
+{
+    width: auto;
+}
+
+.noise-window__preview-container
+{
+    flex-grow: 1;
+    background-color: #222222;
+}
+
+.noise-window__preview-container-texture
+{
+    flex: 1;
+    margin: 10px 10px 40px 10px;
+}
+
+.noise-window__preview-container-texture, .unity-image
+{
+    cursor: pan;
+}
+
+.noise-window__preview-texture-label
+{
+    padding: 10px;
+}
+
+.noise-window__file-panel-container
+{
+    padding: 0px 0px 10px 0px;
+}
+
+.noise-window__file-panel-button
+{
+    flex: .33333;
+    background-image: none;
+    background-color: #333333;
+    border-color: #222222;
+    border-width: 1px;
+    height: 30px;
+    min-height: 30px;
+    max-height: 30px;
+}
+
+.noise-window__file-panel-button:hover
+{
+    background-color: #444444;
+}
+
+.noise-window__file-panel-button:active
+{
+    background-color: #333333;
+}
+
+.noise-window__flex-area
+{
+    flex: 1;
+}
+
+.noise-window__foldout-container
+{
+    background-color: #2c2c2c;
+    height: 24px;
+    min-height: 20px;
+    max-height: 20px;
+}
+
+.noise-window__flex-half
+{
+    flex: .5;
+}
+
+.noise-window__flex-third
+{
+    flex: .33333;
+}
+
+.noise-window__export-container
+{
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    border-color: #222222;
+    border-width: 2px 0 0 0;
+    flex-shrink: 0;
+}
+
+.noise-window__export-settings
+{
+    padding: 8px;
+}
+
+.noise-window__export-button
+{
+    background-image: none;
+    background-color: #333333;
+    border-color: #222222;
+    border-width: 1px;
+    height: 30px;
+    min-height: 30px;
+    max-height: 30px;
+}
+
+.noise-window__export-button:hover
+{
+    background-color: #444444;
+}
+
+.noise-window__export-button:active
+{
+    background-color: #333333;
+}

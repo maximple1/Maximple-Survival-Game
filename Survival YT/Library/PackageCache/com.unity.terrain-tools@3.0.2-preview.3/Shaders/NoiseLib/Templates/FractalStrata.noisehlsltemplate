@@ -1,0 +1,200 @@
+#ifndef UNITY_TERRAIN_TOOL_NOISE_${VariantName}_INC
+#define UNITY_TERRAIN_TOOL_NOISE_${VariantName}_INC
+
+/*=========================================================================
+
+    Includes
+
+=========================================================================*/
+
+${Includes}
+
+${FractalDataDefinitions}
+
+/*=========================================================================
+
+    Fractal Functions
+
+=========================================================================*/
+
+float noise_${VariantName}_Raw( float pos, ${FunctionParams} )
+{
+    float prev = 0;
+    float n = 0;
+
+    float octaves = ceil(fractalInput.octaves) + (1 - sign(frac(fractalInput.octaves)));
+
+    for( float i = 0; i < octaves; ++i )
+    {
+        prev = n;
+        n += fractalInput.amplitude * get_noise_${NoiseName}( pos * fractalInput.frequency );
+        fractalInput.frequency *= fractalInput.lacunarity;
+        fractalInput.amplitude *= fractalInput.persistence;
+    }
+
+    n = lerp(prev, n, frac(fractalInput.octaves));
+
+    return n;
+}
+
+float noise_${VariantName}_Raw( float2 pos, ${FunctionParams} )
+{
+    float prev = 0;
+    float n = 0;
+
+    float octaves = ceil(fractalInput.octaves) + (1 - sign(frac(fractalInput.octaves)));
+
+    for( float i = 0; i < octaves; ++i )
+    {
+        prev = n;
+        n += fractalInput.amplitude * get_noise_${NoiseName}( pos * fractalInput.frequency );
+        fractalInput.frequency *= fractalInput.lacunarity;
+        fractalInput.amplitude *= fractalInput.persistence;
+    }
+
+    n = lerp(prev, n, frac(fractalInput.octaves));
+
+    return n;
+}
+
+float noise_${VariantName}_Raw( float3 pos, ${FunctionParams} )
+{
+    float prev = 0;
+    float n = 0;
+
+    float octaves = ceil(fractalInput.octaves) + (1 - sign(frac(fractalInput.octaves)));
+
+    for( float i = 0; i < octaves; ++i )
+    {
+        prev = n;
+        n += fractalInput.amplitude * get_noise_${NoiseName}( pos * fractalInput.frequency );
+        fractalInput.frequency *= fractalInput.lacunarity;
+        fractalInput.amplitude *= fractalInput.persistence;
+    }
+
+    n = lerp(prev, n, frac(fractalInput.octaves));
+
+    return n;
+}
+
+float noise_${VariantName}_Raw( float4 pos, ${FunctionParams} )
+{
+    float prev = 0;
+    float n = 0;
+
+    float octaves = ceil(fractalInput.octaves) + (1 - sign(frac(fractalInput.octaves)));
+
+    for( float i = 0; i < octaves; ++i )
+    {
+        prev = n;
+        n += fractalInput.amplitude * get_noise_${NoiseName}( pos * fractalInput.frequency );
+        fractalInput.frequency *= fractalInput.lacunarity;
+        fractalInput.amplitude *= fractalInput.persistence;
+    }
+
+    n = lerp(prev, n, frac(fractalInput.octaves));
+
+    return n;
+}
+
+/*=========================================================================
+
+    ${VariantName} Noise Functions - Fractal, Warped
+
+=========================================================================*/
+
+float noise_${VariantName}( float pos, ${FunctionParams} )
+{
+    if(fractalInput.warpIterations > 0)
+    {
+        float prev = 0;
+        float warpIterations = ceil( fractalInput.warpIterations ) + ( 1 - sign( frac( fractalInput.warpIterations ) ) );
+
+        // do warping
+        for ( float i = 0; i < warpIterations; ++i )
+        {
+            float q = noise_${VariantName}_Raw( pos + fractalInput.warpOffsets.x, ${FunctionInputs} );
+            prev = pos;
+            pos = pos + fractalInput.warpStrength * q;
+        }
+
+        pos = lerp( prev, pos, frac( fractalInput.warpIterations ) );
+    }
+
+    float h = noise_${VariantName}_Raw( pos, ${FunctionInputs} );
+
+    float f = noise_StrataValue_Raw( h * fractalInput.strataScale + fractalInput.strataOffset, ${FunctionInputs} );
+    
+    return f;
+}
+
+float noise_${VariantName}( float2 pos, ${FunctionParams} )
+{
+    if(fractalInput.warpIterations > 0)
+    {
+        float2 prev = 0;
+        float warpIterations = ceil( fractalInput.warpIterations ) + ( 1 - sign( frac( fractalInput.warpIterations ) ) );
+
+        // do warping
+        for ( float i = 0; i < warpIterations; ++i )
+        {
+            float2 q = float2( noise_${VariantName}_Raw( pos, ${FunctionInputs} ),
+                            noise_${VariantName}_Raw( pos + fractalInput.warpOffsets.xy, ${FunctionInputs} ) );
+            prev = pos;
+
+            pos = pos + fractalInput.warpStrength * q;
+        }
+        
+        pos = lerp( prev, pos, frac( fractalInput.warpIterations ) );
+    }
+
+    float h = noise_${VariantName}_Raw( pos, ${FunctionInputs} );
+
+    float f = noise_StrataValue_Raw( h * fractalInput.strataScale + fractalInput.strataOffset, ${FunctionInputs} );
+    
+    return f;
+}
+
+float noise_${VariantName}( float3 pos, ${FunctionParams} )
+{
+    if(fractalInput.warpIterations > 0)
+    {
+        float3 prev = 0;
+        float warpIterations = ceil( fractalInput.warpIterations ) + ( 1 - sign( frac( fractalInput.warpIterations ) ) );
+
+        // do warping
+        for ( float i = 0; i < warpIterations; ++i )
+        {
+            float3 q = float3( noise_${VariantName}_Raw( pos.xyz, ${FunctionInputs} ),
+                        noise_${VariantName}_Raw( pos.xyz + fractalInput.warpOffsets.xyz, ${FunctionInputs} ),
+                        noise_${VariantName}_Raw( pos.xyz + float3( fractalInput.warpOffsets.x, fractalInput.warpOffsets.y, 0 ), ${FunctionInputs} ) );
+            prev = pos;
+            pos = pos + fractalInput.warpStrength * q;
+        }
+        
+        pos = lerp(prev, pos, frac( fractalInput.warpIterations ) );
+    }
+    
+    float h = noise_${VariantName}_Raw( pos, ${FunctionInputs} );
+
+    // h = sin( sign( h ) * ( 1 / abs( h ) ) );
+    // h = sign( h ) * ( 1 / abs( h ) );
+
+    float f = noise_StrataValue_Raw( h * fractalInput.strataScale + fractalInput.strataOffset, ${FunctionInputs} );
+    
+    // f = ( h * .5 );
+    // f = h;
+    
+    return f;
+}
+
+float noise_${VariantName}( float4 pos, ${FunctionParams} )
+{
+    float h = noise_${VariantName}_Raw( pos, ${FunctionInputs} );
+
+    float f = noise_StrataValue_Raw( h * fractalInput.strataScale + fractalInput.strataOffset, ${FunctionInputs} );
+    
+    return f;
+}
+
+#endif // UNITY_TERRAIN_TOOL_NOISE_${VariantName}_INC

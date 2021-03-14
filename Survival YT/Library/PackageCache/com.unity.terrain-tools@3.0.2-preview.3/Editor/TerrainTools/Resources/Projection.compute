@@ -1,0 +1,39 @@
+﻿// Projection Step (hodge decomposition)
+// Requires 2 additional kernels - one to compute the divergence field and
+// one to subtract the gradient
+
+RWTexture2D<float2> VelocityTex2D;
+RWTexture2D<float2> VelocityOutTex2D;
+
+RWTexture2D<float> DivergenceTex2D;
+
+RWTexture2D<float> PressureTex2D;
+RWTexture2D<float> OutputTex2D;
+
+float4 dxdy; //(dx, dy, 1 / dx, 1 / dy), where dx = cell width, dy = cell height
+
+#pragma kernel Divergence
+[numthreads(1, 1, 1)]
+void Divergence(uint3 id : SV_DispatchThreadID)
+{
+	float2 l = VelocityTex2D[uint2(id.x - 1, id.y)];
+	float2 r = VelocityTex2D[uint2(id.x + 1, id.y)];
+	float2 b = VelocityTex2D[uint2(id.x, id.y - 1)];
+	float2 t = VelocityTex2D[uint2(id.x, id.y + 1)];
+
+	//assumes square resolution & tile dimensions :(
+	DivergenceTex2D[id.xy] = 0.5f * dxdy.z * ((r.x - l.x) + (t.y - b.y));
+}
+
+#pragma kernel GradientSubtract
+[numthreads(1, 1, 1)]
+void GradientSubtract(uint3 id : SV_DispatchThreadID)
+{
+	float l = PressureTex2D[uint2(id.x - 1, id.y)];
+	float r = PressureTex2D[uint2(id.x + 1, id.y)];
+	float b = PressureTex2D[uint2(id.x, id.y - 1)];
+	float t = PressureTex2D[uint2(id.x, id.y + 1)];
+
+	//assumes square resolution & tile dimensions. :(
+	VelocityOutTex2D[id.xy] = VelocityTex2D[id.xy] - 0.5f * dxdy.z * float2(r - l, t - b);
+}

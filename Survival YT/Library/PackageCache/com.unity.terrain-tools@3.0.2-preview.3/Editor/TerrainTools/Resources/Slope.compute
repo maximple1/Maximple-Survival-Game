@@ -1,0 +1,46 @@
+﻿Texture2D<float> In_BaseMaskTex;
+Texture2D<float> In_HeightTex;
+Texture2D<float> RemapTex;
+RWTexture2D<float> OutputTex;
+
+float EffectStrength;
+float4 TerrainDimensions;
+int RemapTexRes;
+float4 TextureResolution;
+
+#define EPSILON TextureResolution.z
+#define TERRAIN_ASPECT_SCALE TextureResolution.w
+#define TWO_OVER_PI 0.6366197723675f
+
+float3 gradient(uint2 id, uint2 offset) {
+
+	uint upY = max(0, id.y - offset.y);
+	uint downY = min((uint)TextureResolution.y, id.y + offset.y);
+	uint rightX = max(0, id.x - offset.x);
+	uint leftX = min((uint)TextureResolution.x, id.x + offset.x);
+
+	float dzdx = ((In_HeightTex[uint2(rightX, upY)] + 2 * In_HeightTex[uint2(rightX, id.y)] + In_HeightTex[uint2(rightX, downY)]) -
+		(In_HeightTex[uint2(leftX, upY)] + 2 * In_HeightTex[uint2(leftX, id.y)] + In_HeightTex[uint2(leftX, downY)])) / 8.0f * TerrainDimensions.y * TextureResolution.x / TerrainDimensions.x; 
+	float dzdy = ((In_HeightTex[uint2(leftX, downY)] + 2 * In_HeightTex[uint2(id.x, downY)] + In_HeightTex[uint2(rightX, downY)]) -
+		(In_HeightTex[uint2(leftX, upY)] + 2 * In_HeightTex[uint2(id.x, upY)] + In_HeightTex[uint2(rightX, upY)])) / 8.0f * TerrainDimensions.y * TextureResolution.x / TerrainDimensions.z;
+
+	float mag = length(float2(dzdx, dzdy)); // "steepness"
+	return float3(dzdx / mag, dzdy / mag, mag * TERRAIN_ASPECT_SCALE);
+}
+
+
+#pragma kernel GradientMultiply
+[numthreads(1, 1, 1)]
+void GradientMultiply(uint3 id : SV_DispatchThreadID)
+{
+	uint2 offset = uint2(EPSILON, EPSILON);
+
+	float3 g = gradient(id.xy, offset);
+
+	float angle = saturate(TWO_OVER_PI * atan2(g.z, EPSILON * TextureResolution.x));
+
+	uint remapIdx = (uint)(angle * (float)(RemapTexRes - 1));
+	float remappedGradient = RemapTex[uint2(remapIdx, 0)];
+
+	OutputTex[id.xy] = lerp(1.0f, remappedGradient, EffectStrength) * In_BaseMaskTex[id.xy];
+}

@@ -1,0 +1,25 @@
+﻿//#include "../../../Shaders/NoiseLib/Noise.hlsl"
+
+RWTexture2D<float4> OutputTex;
+float4 Constant;
+
+#pragma kernel AddConstant
+[numthreads(1, 1, 1)]
+void AddConstant(uint3 id : SV_DispatchThreadID)
+{
+	OutputTex[id.xy] = OutputTex[id.xy] + Constant;
+}
+
+float4 ValueRanges;
+
+#pragma kernel RemapValues
+[numthreads(1,1,1)]
+void RemapValues (uint3 id : SV_DispatchThreadID)
+{
+	float4 inLow = float4(ValueRanges.x, ValueRanges.x, ValueRanges.x, ValueRanges.x);
+	float4 inHigh = float4(ValueRanges.y, ValueRanges.y, ValueRanges.y, ValueRanges.y);
+	float4 outLow = float4(ValueRanges.z, ValueRanges.z, ValueRanges.z, ValueRanges.z);
+	float4 outHigh = float4(ValueRanges.w, ValueRanges.w, ValueRanges.w, ValueRanges.w);
+
+	OutputTex[id.xy] = outLow + (OutputTex[id.xy] - inLow) * (outHigh - outLow) / (inHigh - inLow);
+}

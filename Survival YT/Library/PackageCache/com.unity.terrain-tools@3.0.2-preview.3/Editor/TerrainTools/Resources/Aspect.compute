@@ -1,0 +1,43 @@
+﻿Texture2D<float> In_HeightTex;
+Texture2D<float> In_BaseMaskTex;
+Texture2D<float> RemapTex;
+RWTexture2D<float> OutputTex;
+
+float4 AspectValues;
+
+float EffectStrength;
+int RemapTexRes;
+
+float2 computeNormal(uint2 id, int epsilon)
+{
+	uint left = id.x - epsilon;
+	uint right = id.x + epsilon;
+	uint up = id.y - epsilon;
+	uint down = id.y + epsilon;
+
+	float dzdx = ((In_HeightTex[uint2(right, down)] + 2.0f * In_HeightTex[uint2(right, id.y)] + In_HeightTex[uint2(right, up)]) -
+		(In_HeightTex[uint2(left, down)] + 2.0f * In_HeightTex[uint2(left, id.y)] + In_HeightTex[uint2(left, up)])) / 8.0f;
+
+	float dzdy = ((In_HeightTex[uint2(left, up)] + 2.0f * In_HeightTex[uint2(id.x, up)] + In_HeightTex[uint2(right, up)]) -
+		(In_HeightTex[uint2(left, down)] + 2.0f * In_HeightTex[uint2(id.x, down)] + In_HeightTex[uint2(right, down)])) / 8.0f;
+
+	return normalize(float2(dzdx, dzdy));
+}
+
+float GetAspectScale(uint2 id, float h)
+{
+	float epsilon = AspectValues.z;
+	float2 n = computeNormal(id, epsilon);
+	float aspect = saturate(dot(n, AspectValues.xy));
+
+	uint remapIdx = (uint)(aspect * (float)(RemapTexRes - 1));
+	return RemapTex[uint2(remapIdx, 0)];
+}
+
+#pragma kernel AspectRemap
+[numthreads(1, 1, 1)]
+void AspectRemap(uint3 id : SV_DispatchThreadID)
+{
+	float aspectMask = GetAspectScale(id.xy, In_HeightTex[id.xy]);
+	OutputTex[id.xy] = lerp(1.0f, aspectMask, EffectStrength) * In_BaseMaskTex[id.xy];
+}

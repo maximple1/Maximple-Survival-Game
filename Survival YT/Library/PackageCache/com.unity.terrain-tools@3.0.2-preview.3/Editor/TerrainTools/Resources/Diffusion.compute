@@ -1,0 +1,62 @@
+﻿Texture2D<float4> InputTex;
+RWTexture2D<float4> OutputTex;
+
+float dt;
+float diff;
+float2 texDim;
+
+// Gauss-Seidel vs Jacobi method:
+// https://www3.nd.edu/~zxu2/acms40390F12/Lec-7.3.pdf
+//
+// other options: conjugate gradient, multigrid methods
+//
+
+//jacobi
+/*
+void jacobi(half2 coords   : WPOS,   // grid coordinates
+
+	out
+	half4 xNew : COLOR,  // result
+
+	uniform
+	half alpha,
+	uniform
+	half rBeta,      // reciprocal beta
+
+	uniform samplerRECT x,   // x vector (Ax = b)
+
+	uniform samplerRECT b)   // b vector (Ax = b)
+{
+	// left, right, bottom, and top x samples
+
+	half4 xL = h4texRECT(x, coords - half2(1, 0));
+	half4 xR = h4texRECT(x, coords + half2(1, 0));
+	half4 xB = h4texRECT(x, coords - half2(0, 1));
+	half4 xT = h4texRECT(x, coords + half2(0, 1));
+
+	// b sample, from center
+
+	half4 bC = h4texRECT(b, coords);
+
+	// evaluate Jacobi iteration
+	xNew = (xL + xR + xB + xT + alpha * bC) * rBeta;
+}
+*/
+
+//
+// diffuse / blur
+//
+// Gauss-Seidel relaxation
+#pragma kernel Diffuse
+[numthreads(8, 8, 1)]
+void Diffuse(uint3 id : SV_DispatchThreadID)
+{
+	float4 hCenter = InputTex[id.xy];
+	float4 hLeft = InputTex[uint2(id.x - 1, id.y)]; //TODO: bounds checking
+	float4 hRight = InputTex[uint2(id.x + 1, id.y)];
+	float4 hTop = InputTex[uint2(id.x, id.y + 1)];
+	float4 hBottom = InputTex[uint2(id.x, id.y - 1)];
+
+	float alpha = dt * diff * texDim[0] * texDim[1];
+	OutputTex[id.xy] = (hCenter + alpha * (hLeft + hRight + hTop + hBottom)) / (1.0f + 4.0f * alpha);
+}

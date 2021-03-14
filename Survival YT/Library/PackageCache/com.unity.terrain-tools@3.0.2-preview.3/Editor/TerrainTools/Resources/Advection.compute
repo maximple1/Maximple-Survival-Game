@@ -1,0 +1,35 @@
+﻿//Inputs
+float dt;             // user-specified time step
+float velScale;       // user-specified velocity scalar (flow rate)
+float4 dxdy;          // (pixel width, pixel height, 1 / dx, 1 / dy) precomputed
+float4 DomainRes;     // (xRes, yRes, 1 / xRes, 1 / yRes)
+
+Texture2D<float4>     InputTex;       // Texture to advect
+Texture2D<float2>     VelocityTex;    // m/s
+
+//output
+RWTexture2D<float4>   OutputTex;
+
+float4 bilinearSample(Texture2D<float4> t, float2 coord) {
+	float2 f = frac(coord);
+
+	float4 tl = t[(uint2)coord];
+	float4 tr = t[uint2(coord.x + 1, coord.y)];
+	float4 bl = t[uint2(coord.x, coord.y + 1)];
+	float4 br = t[uint2(coord.x + 1, coord.y + 1)];
+
+	float4 ta = lerp(tl, tr, f.x);
+	float4 tb = lerp(bl, br, f.x);
+	return lerp(ta, tb, f.y);
+}
+
+#pragma kernel Advect
+[numthreads(1, 1, 1)]
+void Advect(uint3 id : SV_DispatchThreadID) {
+	// need to scale the velocity by pixel size (in world coordinates) since we are actually operating by pixel index
+	float2 vel = velScale * VelocityTex[id.xy].xy * dxdy.zw;
+
+	// backtraced coordinates
+	float2 xy = clamp(float2((float)id.x, (float)id.y) - (dt * vel), 0.0f, DomainRes.xy + float2(1.0f, 1.0f));
+	OutputTex[id.xy] = bilinearSample(InputTex, xy);
+}

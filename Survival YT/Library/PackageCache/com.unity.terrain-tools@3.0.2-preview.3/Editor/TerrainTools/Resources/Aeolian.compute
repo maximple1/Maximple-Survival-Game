@@ -1,0 +1,110 @@
+﻿//inputs
+Texture2D<float>   InHeightMap;
+Texture2D<float>   InSediment;
+Texture2D<float2>  WindVel;
+
+float4 DomainDim;	     // the dimensions of all of our textures (they must all be the same dimensions)
+float4 terrainScale;     // the dimensions in world space of the terrain tile
+float4 dxdy;             // (dx, dy, 1 / dx, 1/ dy), where dx, dy = texel width, height
+
+float dt;                          // simulation time step
+float SuspensionRate;              // controls the rate at which sediment is removed from the heightfield
+float DepositionRate;              // controls the rate at which sediment is deposited back onto the heightfield
+float SlopeFactor;                 // exponent value that controls the rate at which slope angles are eroded
+float DragCoefficient;             // scalar that controls the rate at which heightfield drag is applied
+float ReflectionCoefficient;       // scalar that controls the degree to which the wind velocity "bounces" off surfaces
+float AbrasivenessCoefficient;     // controls the rate at which suspended sediment "sandblasts" the heightfield
+
+
+// output textures
+RWTexture2D<float>   OutSediment;
+RWTexture2D<float>   OutHeightMap;
+RWTexture2D<float2>  OutWindVel;
+
+//
+// safety function to ensure we're not going to index off the texture
+//
+uint4 getSafeNeighbors(uint2 coord) {
+	return uint4(
+		(coord.x < (uint)(DomainDim[0] - 1)) ? coord.x + 1 : coord.x,  //right index
+		(coord.x > 0) ? (uint)(coord.x - 1) : coord.x,                 //left index
+		(coord.y < (uint)(DomainDim[1] - 1)) ? coord.y + 1 : coord.y,  //bottom index
+		(coord.y > 0) ? (uint)(coord.y - 1) : coord.y                  //top index
+		);
+}
+
+//helper macros to index the neighbors from the getSafeNeighbors function
+#define RIGHT(c)	(c.x)
+#define LEFT(c)		(c.y)
+#define BOTTOM(c)	(c.z)
+#define TOP(c)		(c.w)
+
+//
+// computes the gradient of the height field at the specified coordinate
+// the gradient vector points in the direction of the steepest ascent
+//
+float2 computeGradient(uint2 coord) {
+	uint4 nidx = getSafeNeighbors(coord);
+
+	float dzdx = ((InHeightMap[uint2(RIGHT(nidx), BOTTOM(nidx))] + 2 * InHeightMap[uint2(RIGHT(nidx), coord.y)] + InHeightMap[uint2(RIGHT(nidx), TOP(nidx))]) -
+		(InHeightMap[uint2(LEFT(nidx), BOTTOM(nidx))] + 2 * InHeightMap[uint2(LEFT(nidx), coord.y)] + InHeightMap[uint2(LEFT(nidx), TOP(nidx))])) / 8.0f;
+
+	float dzdy = ((InHeightMap[uint2(LEFT(nidx), TOP(nidx))] + 2 * InHeightMap[uint2(coord.x, TOP(nidx))] + InHeightMap[uint2(RIGHT(nidx), TOP(nidx))]) -
+		(InHeightMap[uint2(LEFT(nidx), BOTTOM(nidx))] + 2 * InHeightMap[uint2(coord.x, BOTTOM(nidx))] + InHeightMap[uint2(RIGHT(nidx), BOTTOM(nidx))])) / 8.0f;
+
+	return float2(terrainScale.y * dzdx * dxdy.z, terrainScale.y * dzdy * dxdy.w);
+}
+
+//
+// Removes sediment from the heightfield, adding them to the OutSediment texture
+// more sediment is removed from surfaces whose surface normal is pointing in the opposite direction
+// as the wind velocity vector.
+//
+// Redeposits sediment from the OutSediment texture back onto the heightmap
+//
+#pragma kernel WindSedimentErode
+[numthreads(1,1,1)]
+void WindSedimentErode(uint3 id : SV_DispatchThreadID)
+{
+	float2 grad = normalize(computeGradient(id.xy));
+	float mag = length(grad);
+
+	float g_dot_v = max(dot(-grad, normalize(WindVel[id.xy]) * dxdy.zw * mag), 0.0f);
+
+	float pnw = pow(g_dot_v, SlopeFactor);
+	float sandBlast = AbrasivenessCoefficient * dt * InSediment[id.xy];
+	float windSwept = SuspensionRate * dt;
+
+	float suspendedSediment = min(pnw * (sandBlast + windSwept), InHeightMap[id.xy]);
+	float depositedSediment = min(DepositionRate * dt, InSediment[id.xy]);
+
+	float halfHeight = 0.5f * InHeightMap[id.xy];
+	float dS = clamp(depositedSediment - suspendedSediment, -halfHeight, halfHeight);
+
+	OutSediment[id.xy] = max(InSediment[id.xy] - dS, 0.0f);
+	OutHeightMap[id.xy] = max(InHeightMap[id.xy] + dS, 0.0f);
+}
+
+//
+// This function applies drag to the wind velocity field based on the gradient vector,
+// applying more drag when the surface normal points in the opposite direction as the wind directoin
+// There is also a reflection vector applied, causing the wind to "bounce" off of very steep
+// terrain features.
+//
+#pragma kernel ApplyHeightfieldDrag
+[numthreads(1, 1, 1)]
+void ApplyHeightfieldDrag(uint3 id : SV_DispatchThreadID)
+{
+	float2 grad = normalize(computeGradient(id.xy));
+	float2 scaledVel = normalize(WindVel[id.xy]);
+
+	float g_dot_v = dot(scaledVel, -grad);
+
+	// compute the wind reflection vector
+	float2 r = scaledVel - 2.0f * g_dot_v * grad;
+
+	float effectiveReflection = ReflectionCoefficient * dt;
+	float effectiveDrag = DragCoefficient * dt * saturate(g_dot_v); // apply more drag to surfaces facing the wind
+
+	OutWindVel[id.xy] = WindVel[id.xy] + effectiveReflection * r - effectiveDrag * WindVel[id.xy];
+}

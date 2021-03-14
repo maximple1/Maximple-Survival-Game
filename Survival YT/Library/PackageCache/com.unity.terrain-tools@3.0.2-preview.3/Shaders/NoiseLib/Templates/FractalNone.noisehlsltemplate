@@ -1,0 +1,38 @@
+#ifndef UNITY_TERRAIN_TOOL_NOISE_${VariantName}_INC
+#define UNITY_TERRAIN_TOOL_NOISE_${VariantName}_INC
+
+/*=========================================================================
+
+    Includes
+
+=========================================================================*/
+
+${Includes}
+
+/*=========================================================================
+    
+    ${VariantName} Noise Functions - Non-Fractal, Non-Warped
+
+=========================================================================*/
+
+float noise_${VariantName}( float pos )
+{
+    return get_noise_${NoiseName}( pos );
+}
+
+float noise_${VariantName}( float2 pos )
+{
+    return get_noise_${NoiseName}( pos );
+}
+
+float noise_${VariantName}( float3 pos )
+{
+    return get_noise_${NoiseName}( pos );
+}
+
+float noise_${VariantName}( float4 pos )
+{
+    return get_noise_${NoiseName}( pos );
+}
+
+#endif // UNITY_TERRAIN_TOOL_NOISE_${VariantName}_INC

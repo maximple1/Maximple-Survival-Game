@@ -1,0 +1,149 @@
+Shader ${ShaderCategory}
+{
+    Properties { _MainTex ("Texture", any) = "" {} }
+
+    SubShader
+    {
+        ZTest Always Cull OFF ZWrite Off
+
+        HLSLINCLUDE
+
+        #include "UnityCG.cginc"
+
+        sampler2D _MainTex;
+        float4 _MainTex_TexelSize;      // 1/width, 1/height, width, height
+
+        struct appdata_t
+        {
+            float4 vertex : POSITION;
+            float2 uv : TEXCOORD0;
+        };
+
+        struct v2f
+        {
+            float4 vertex : SV_POSITION;
+            float2 uv : TEXCOORD0;
+        };
+
+        v2f vert( appdata_t v )
+        {
+            v2f o;
+            
+            o.vertex = UnityObjectToClipPos( v.vertex );
+            o.uv = v.uv;
+
+            return o;
+        }
+
+        ENDHLSL
+
+        BEGINPASSTEMPLATE
+        
+        // Pass
+        // {
+        //     Name "${NoiseName} Raw Noise Blit (2D)"
+
+        //     HLSLPROGRAM
+
+        //     #pragma vertex vert
+        //     #pragma fragment frag
+
+        //     ${Includes}
+
+        //     float4 frag( v2f i ) : SV_Target
+        //     {
+        //         float3 pos = ApplyNoiseTransform( float3(i.uv.x, 0, i.uv.y) - float3(.5, 0, .5) );
+
+        //         float n = noise_${VariantName}( pos, ${GetInputs} );
+
+        //         return n;
+        //     }
+
+        //     ENDHLSL
+        // }
+
+        Pass // 0 - 2D ${NoiseName} Noise
+        {
+            Name "${NoiseName} Raw Noise Blit (2D)"
+
+            HLSLPROGRAM
+
+            #pragma vertex vert
+            #pragma fragment frag
+            #pragma shader_feature USE_NOISE_TEXTURE
+
+            ${Includes}
+
+#if USE_NOISE_TEXTURE
+
+            sampler2D _NoiseTex;
+
+#endif
+
+            float4 frag( v2f i ) : SV_Target
+            {
+                // calc pos for center of pixel
+                float3 uv = float3( i.uv.x, 0, i.uv.y ) - float3( .5, 0, .5 );
+                uv +=  + float3(.5, 0, .5) * _MainTex_TexelSize.xxy; // offset by half a texel so we are sampling noise for the center of the texel
+
+#if USE_NOISE_TEXTURE
+                
+                float pos = tex2D( _NoiseTex, i.uv ).r * _NoiseTransform._m00 + _NoiseTransform._m13;
+
+#else
+
+                float3 pos = ApplyNoiseTransform( uv.xyz );
+
+#endif
+
+                float n = noise_${VariantName}( pos, ${GetInputs} );
+
+                return PackHeightmap(n);
+            }
+
+            ENDHLSL
+        }
+
+        Pass // 1 - 3D ${NoiseName} Noise
+        {
+            Name "${NoiseName} Raw Noise Blit (3D)"
+
+            HLSLPROGRAM
+
+            #pragma vertex vert
+            #pragma fragment frag
+            #pragma shader_feature _ USE_NOISE_TEXTURE
+
+            ${Includes}
+
+#if USE_NOISE_TEXTURE
+
+            sampler3D _NoiseTex;
+
+#endif
+
+            float _UVY;
+
+            float4 frag( v2f i ) : SV_Target
+            {
+#if USE_NOISE_TEXTURE
+
+                float pos = tex3D( _NoiseTex, float3(i.uv.x, _UVY, i.uv.y) ).r;
+
+#else
+
+                float3 pos = ApplyNoiseTransform( float3(i.uv.x, _UVY, i.uv.y) - float3(.5, 0, .5) );
+
+#endif
+
+                float n = noise_${VariantName}( pos, ${GetInputs} );
+
+                return PackHeightmap(n);
+            }
+
+            ENDHLSL
+        }
+
+        ENDPASSTEMPLATE
+    }
+}
