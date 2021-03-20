@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Cinemachine;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -27,6 +28,7 @@ public class CustomCharacterController : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         // и делаем его невидимым
         Cursor.visible = false;
+        
     }
     void Run()
     {

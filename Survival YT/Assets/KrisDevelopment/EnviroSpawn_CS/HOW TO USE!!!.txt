@@ -1,0 +1,28 @@
+OFFLINE DOCUMENTATION!
+
+THE BASICS OF THE TOOL:
+EnviroSpawn is a tool that allows you to quickly populate large areas with objects.
+It works on any surface, using raycasts.
+Create an empty game object and go under Add Component > Enviro Spawn > EnviroSpawn.cs
+then modify the variables to fit your needs.
+
+HOW TO USE:
+STEP 1: Under PREFABS select the amount of objects you want to be used and drag their prefabs.
+STEP 2: Set DIMENSIONS to your preferred size.
+STEP 3: Select IGNORE MASK which will ignore all unwanted surfaces.
+STEP 4: Select AVOID MASK to avoid spawning on selected surfaces.
+STEP 5: Set POPULATION (the amount of objects that you want to be generated inside the area).
+STEP 6: Optional settings are OFFSET (which will determine the offset from the ground).
+and FOLLOW NORMALS ORIENTATION (which will tell the objects to stay vertically or to follow the ground/normal orientation).
+STEP 7: SCATTER MODE: Random/Fixed Grid/Even Spread - choose the way you want the prefabs to be positioned inside the chosen area.
+-Fixed Grid: Instantiate the prefabs in a 1 unit * GridScale grid space. Starting from the bottom-left corner of the area and going left-to-right.
+-Even Spread: Automatically calculating the grid intervals based on the dimensions and target population.
+
+Note: positioning properties are applied automatically upon update. generation settings need to be applied manually through the "Generate" button.
+
+As of version 2018 the tool has been optimised to update only when it has been selected through the editor. 
+
+VIDEO:
+https://youtu.be/kuoTRMQXx6s
+
+-10.02.2018-

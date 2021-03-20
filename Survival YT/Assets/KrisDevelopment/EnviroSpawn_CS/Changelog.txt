@@ -1,0 +1,23 @@
+v0.3
+-fixed scatter mode / Fixed Grid / (position objects on a grid)
+
+v0.4
+-new scatter mode (Eaven Spread)
+-scatter modes are now organised under a drop-down menu.
+
+v2018
+-C# port
+-bug fixes
+-Added Avoid layer mask (prevent objects from spawning on unwanted surfaces)
+
+v2018.1
+-hotfix: Fixed build compilation error (UnityEditor)
+
+v2018.2
+-Improved spawning method (maintaining prefab link)
+
+v2020.1
+-UI improvements
+-Added SEUtil library as dependency
+-Fixed collider bug (for when objects have colliders on the same layer as the raycast)
+-General optimizations and code refactoring

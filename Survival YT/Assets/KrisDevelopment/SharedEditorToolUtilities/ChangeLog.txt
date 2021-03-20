@@ -1,0 +1,161 @@
+v1.5:
+-Split the project utilities into multiple files
+
+v1.6:
+-Added Generic array drawer
+-Added Component Ordering Utility
+
+v1.9:
+-Added DrawGUIElement
+
+v1.12:
+-Added SETUtil_Extend
+-Fixed SceneUtil.Destroy runtime exception
+
+v1.20:
+-SceneUtil Generic Destroy methods
+-MathUtil PerlinVolume
+
+v1.21:
+-"int orderIndex" of iOrderedComponent is now "int OrderIndex()"
+
+v1.22:
+-Removed Preferences serialization flag
+
+v1.23:
+-Removed EditorUtil serialization block methods
+-Improved EditorUtil.BeginColorPocket() to utilize SETUtil.Common.Stack
+-Fixed SceneUtil.Instantiate group;
+
+v1.24:
+-Navigation Field improvements
+
+v1.31:
+-Changed TransformData to struct instead of a class
+-Deprecated ArrUtil as it was suggesting outdated programming standards
+-Removed Common.Stack as it was obsolete
+-Updated & Optimized ArrayFieldGUI
+-Removed Char from StringUtil
+-Removed GetChar from StringUtil
+-Removed Internal Tools as they were unfitting to the purposes of the library
+
+v1.35:
+-ArrayFieldGUI ArrayFieldOption changed to bitmask
+
+v1.36:
+-Added ArrayFieldGUI List<T> overload
+-ArrayFieldGUI now doesn't take ref parameters
+-Improved NavigationFieldData
+
+v1.36c:
+-Added Common.Extend namespace
+-Added /Common/Extend/SETUtil_StringExtend.cs
+-Extension method: "string".ShowIf(condition)
+
+v1.37:
+-Added SceneUtil.FindRelativePosition
+-Changed SceneUtil.RotationToLocal to SceneUtil.FindRelativeRotation
+-Improved SceneUtil.DestroyArray
+-Changed SceneUtil.Destroy to SceneUtil.SmartDestroy
+
+v1.38:
+-SETUtil types definitions moved to SETUtil.Types namespace
+-Removed Add from CompUtil as obsolete
+-Removed Delete from CompUtil as obsolete
+-Removed HasComponent from CompUtil as obsolete
+-Replaced GUIButtonDelegate with System.Action
+-Added OBJExporter
+-Added FileUtil
+-Changed ValidatePrefabTermination check
+
+v1.38.1:
+-Fixed GetPrefabObject warning
+
+v1.39
+-Added SETUtil_EnumExtend at Common.Extend
+
+v1.40
+-Improved scene view gui element drawing (do make sure drawable elements are initialized once)
+
+v1.41
+-Added SETUtil_ListExtend
+
+v1.41.1
+-Code cleanup
+
+v1.41.2
+-Added .ToPathArray(this string) in Common.Extend.StringExtend
+
+v1.41.3
+-Improved perlin volume
+-Moved SETUtil.Common.RandomAccessStack to SETUtil.Types.ManagedList
+-Common types are not in SETUtil.Common.Types
+-Added SETUtil.Common.Types.Vector3Int
+
+v1.41.4c
+-Bug fixes in ArrayFieldGUI
+-More user-friendly ContainsFlag (generic method)
+
+v1.41.5
+-Bug fixes in ArrayFieldGUI
+-DebugLog delegate is not called DebugLogDelegate
+-Improved auto property drawer used in ArrayFieldGUI
+-Exposed EditorUtil.DrawPropertyField
+
+v1.41.6
+-Bug fixes in FileUtil's relative path properties
+
+v1.42.1
+-EditorUtil bug fixes
+-Added basic Editor Coroutines support
+SETUtil.EditorOnly.EditorCoroutine.Start(IEnumerator);
+
+v1.42.2
+-Removed DrawSceneLabel and DrawSceneButton as they are prone to bad memory management
+Use DrawSceneElement with a cached GUIElement
+
+v1.42.3
+-Removed FindRelativePosition & ApplyRelativePosition form SceneUtil as they were obsolete
+
+v1.42.4
+-Improved FileUtil Read-Write methods
+-Added ParseToLocal and ParseToAbsolute path methods in FileUtil
+
+v1.42.5
+-Fixed SelectRandom in Common.Extend
+
+v1.43
+-Added .IndexOf in SETUtil_ArrayExtend
+-Changed SETUtil_FileUtil.ParseToAbsolutePath to account for directories outside the app root
+
+v1.44
+-Added .IndexOf (Func<T, bool> predicate) in SETUtil_ListExtend
+
+v1.45
+-Added EditorUtil.ShowUtilityWindow<T>("name")
+
+v1.46.1
+-Added EditorUtil.ShowOperationLogWindow
+-Fixed build errors with EditorUtil
+-Fixed an ArrayFieldOption bug
+
+v1.47
+-Added EditorUtil.ExpandButton ref overrides
+-Removed SETUtil.Preferences
+-allowModify parameter of DrawPropertyField has been deprecated
+-IDrawableProperty.DrawAsProperty now takes no arguments
+
+v1.47.1
+-Added MathUtil.GetSignedAngle
+
+v1.47.2
+-Moved FindRelativeRotation from SceneUtil to MathUtil
+
+v1.48
+-Added MathUtil.RotateVector2
+
+v1.48.1
+-HashSet extend - AddRange now takes IEnumerable<T> instead of only an array
+
+v1.49
+-Added Types.SerializableSystemType - wrapper for System.Type but works with Unity's serialization
