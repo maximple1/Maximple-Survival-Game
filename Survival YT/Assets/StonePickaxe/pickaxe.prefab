@@ -11,6 +11,9 @@ GameObject:
   - component: {fileID: 8943872394904725770}
   - component: {fileID: 5454104456620205743}
   - component: {fileID: 7805908390460789349}
+  - component: {fileID: 2285132360765495140}
+  - component: {fileID: 3840996698748131780}
+  - component: {fileID: -872964180496172637}
   m_Layer: 0
   m_Name: pickaxe
   m_TagString: Untagged
@@ -25,13 +28,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8598730835011023792}
-  m_LocalRotation: {x: 0.49046487, y: -0.5491421, z: -0.5159106, w: 0.4378624}
+  m_LocalRotation: {x: -0.4904661, y: 0.54914373, z: 0.51590645, w: -0.4378638}
   m_LocalPosition: {x: 0.11736183, y: 0.10060893, z: 0.037595335}
   m_LocalScale: {x: 18.777605, y: 18.777603, z: 18.7776}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: -4.822, y: 5.576, z: 179.141}
+  m_LocalEulerAnglesHint: {x: -7.8800006, y: -94.878006, z: 269.223}
 --- !u!33 &5454104456620205743
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -81,3 +84,46 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+--- !u!65 &2285132360765495140
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8598730835011023792}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.021452775, y: 0.0035793101, z: 0.037344784}
+  m_Center: {x: -0.00006148125, y: 0.0004016827, z: 0.017727751}
+--- !u!54 &3840996698748131780
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8598730835011023792}
+  serializedVersion: 2
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
+--- !u!114 &-872964180496172637
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8598730835011023792}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a8e6c5c364c07b419789245d664681d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  item: {fileID: 11400000, guid: be0442ea01072f540aae2299f36b58f0, type: 2}
+  amount: 1

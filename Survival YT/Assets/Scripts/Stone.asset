@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2bf68128269ecf74b9e3f31910c66410, type: 3}
+  m_Name: Stone
+  m_EditorClassIdentifier: 
+  itemName: Stone
+  maximumAmount: 100
+  itemPrefab: {fileID: 2469977426082882975, guid: d8af720c1b50929488112d515c29cbcf,
+    type: 3}
+  icon: {fileID: 21300000, guid: 269a0d6432937344f9e90dfd348a9bb1, type: 3}
+  itemType: 1
+  itemDescription: 
+  isConsumeable: 0
+  inHandName: 
+  changeHealth: 0
+  changeHunger: 0
+  changeThirst: 0

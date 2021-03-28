@@ -37,14 +37,14 @@ MonoBehaviour:
   m_Name: Image Sequence
   m_EditorClassIdentifier: 
   enabled: 1
-  take: 55
+  take: 82
   captureEveryNthFrame: 1
   fileNameGenerator:
     m_Path:
       m_Root: 5
       m_Leaf: C:/Users/Kolomensky/Desktop/Maximple/photoes/Screenshots
       m_ForceAssetFolder: 0
-      m_AbsolutePath: C:/Users/Kolomensky/Desktop/Maximple/photoes/Screenshots
+      m_AbsolutePath: C:/Users/maxim/Videos/Maximple/photoes/Screenshots
     m_FileName: image_<Take>_<Frame>
   outputFormat: 1
   captureAlpha: 0
@@ -74,7 +74,7 @@ MonoBehaviour:
       source: 1
       cameraTag: 
       flipFinalOutput: 0
-      captureUI: 1
+      captureUI: 0
     camera360InputSettings:
       source: 2
       cameraTag: 
