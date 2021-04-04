@@ -56,12 +56,29 @@ public class DragAndDropItem : MonoBehaviour, IPointerDownHandler, IPointerUpHan
         //Если мышка отпущена над объектом по имени UIPanel, то...
         if (eventData.pointerCurrentRaycast.gameObject.name == "UIBG") // renamed to UIBG
         {
-            // Выброс объектов из инвентаря - Спавним префаб обекта перед персонажем
-            GameObject itemObject = Instantiate(oldSlot.item.itemPrefab, player.position + Vector3.up + player.forward, Quaternion.identity);
-            // Устанавливаем количество объектов такое какое было в слоте
-            itemObject.GetComponent<Item>().amount = oldSlot.amount;
-            // убираем значения InventorySlot
-            NullifySlotData();
+            if (Input.GetKey(KeyCode.LeftShift))
+            {
+                GameObject itemObject = Instantiate(oldSlot.item.itemPrefab, player.position + Vector3.up + player.forward, Quaternion.identity);
+                itemObject.GetComponent<Item>().amount = Mathf.CeilToInt((float)oldSlot.amount / 2);
+                oldSlot.amount -= Mathf.CeilToInt((float)oldSlot.amount / 2);
+                oldSlot.itemAmountText.text = oldSlot.amount.ToString();
+            }
+            else if (Input.GetKey(KeyCode.LeftControl))
+            {
+                GameObject itemObject = Instantiate(oldSlot.item.itemPrefab, player.position + Vector3.up + player.forward, Quaternion.identity);
+                // Устанавливаем количество объектов такое какое было в слоте
+                itemObject.GetComponent<Item>().amount = 1;
+                oldSlot.amount--;
+                oldSlot.itemAmountText.text = oldSlot.amount.ToString();
+            }
+            else {
+                // Выброс объектов из инвентаря - Спавним префаб обекта перед персонажем
+                GameObject itemObject = Instantiate(oldSlot.item.itemPrefab, player.position + Vector3.up + player.forward, Quaternion.identity);
+                // Устанавливаем количество объектов такое какое было в слоте
+                itemObject.GetComponent<Item>().amount = oldSlot.amount;
+                // убираем значения InventorySlot
+                NullifySlotData();
+            }
             quickslotInventory.CheckItemInHand();
         }
         else if (eventData.pointerCurrentRaycast.gameObject.transform.parent.parent == null)
@@ -94,7 +111,97 @@ public class DragAndDropItem : MonoBehaviour, IPointerDownHandler, IPointerUpHan
         bool isEmpty = newSlot.isEmpty;
         GameObject iconGO = newSlot.iconGO;
         TMP_Text itemAmountText = newSlot.itemAmountText;
+        if(item == null)
+        {
+            if (oldSlot.item.maximumAmount > 1 && oldSlot.amount > 1)
+            {
+                if (Input.GetKey(KeyCode.LeftShift))
+                {
+                    newSlot.item = oldSlot.item;
+                    newSlot.amount = Mathf.CeilToInt((float)oldSlot.amount/2);
+                    newSlot.isEmpty = false;
+                    newSlot.SetIcon(oldSlot.iconGO.GetComponent<Image>().sprite);
+                    newSlot.itemAmountText.text = newSlot.amount.ToString();
 
+                    oldSlot.amount = Mathf.FloorToInt((float)oldSlot.amount / 2); ;
+                    oldSlot.itemAmountText.text = oldSlot.amount.ToString();
+                    return;
+                }
+                else if (Input.GetKey(KeyCode.LeftControl))
+                {
+                    newSlot.item = oldSlot.item;
+                    newSlot.amount = 1;
+                    newSlot.isEmpty = false;
+                    newSlot.SetIcon(oldSlot.iconGO.GetComponent<Image>().sprite);
+                    newSlot.itemAmountText.text = newSlot.amount.ToString();
+                    
+                    oldSlot.amount--;
+                    oldSlot.itemAmountText.text = oldSlot.amount.ToString();
+                    return;
+                }
+            }
+        }
+        if (newSlot.item != null)
+        {
+            if (oldSlot.item.name.Equals(newSlot.item.name))
+            {
+                if (Input.GetKey(KeyCode.LeftShift) && oldSlot.amount > 1)
+                {
+                    if (Mathf.CeilToInt((float)oldSlot.amount / 2) < newSlot.item.maximumAmount - newSlot.amount)
+                    {
+                        newSlot.amount += Mathf.CeilToInt((float)oldSlot.amount / 2);
+                        newSlot.itemAmountText.text = newSlot.amount.ToString();
+
+                        oldSlot.amount -= Mathf.CeilToInt((float)oldSlot.amount / 2);
+                        oldSlot.itemAmountText.text = oldSlot.amount.ToString();
+                    }
+                    else
+                    {
+                        int difference = newSlot.item.maximumAmount - newSlot.amount;
+                        newSlot.amount = newSlot.item.maximumAmount;
+                        newSlot.itemAmountText.text = newSlot.amount.ToString();
+
+                        oldSlot.amount -= difference;
+                        oldSlot.itemAmountText.text = oldSlot.amount.ToString();
+
+                    }
+                    return;
+                }
+                else if (Input.GetKey(KeyCode.LeftControl) && oldSlot.amount > 1)
+                {
+                    if (newSlot.item.maximumAmount != newSlot.amount)
+                    {
+                        newSlot.amount++;
+                        newSlot.itemAmountText.text = newSlot.amount.ToString();
+
+                        oldSlot.amount--;
+                        oldSlot.itemAmountText.text = oldSlot.amount.ToString();
+                    }
+                    return;
+                }
+                else
+                {
+                    if (newSlot.amount + oldSlot.amount >= newSlot.item.maximumAmount)
+                    {
+                        int difference = newSlot.item.maximumAmount - newSlot.amount;
+                        newSlot.amount = newSlot.item.maximumAmount;
+                        newSlot.itemAmountText.text = newSlot.amount.ToString();
+
+                        oldSlot.amount -= difference;
+                        oldSlot.itemAmountText.text = oldSlot.amount.ToString();
+                    }
+                    else
+                    {
+                        newSlot.amount += oldSlot.amount;
+                        newSlot.itemAmountText.text = newSlot.amount.ToString();
+                        NullifySlotData();
+                    }
+                    return;
+                }
+                
+            }
+        }
+         
         // Заменяем значения newSlot на значения oldSlot
         newSlot.item = oldSlot.item;
         newSlot.amount = oldSlot.amount;

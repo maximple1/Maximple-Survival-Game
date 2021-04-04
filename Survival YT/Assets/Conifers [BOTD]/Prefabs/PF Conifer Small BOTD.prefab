@@ -207,7 +207,7 @@ LODGroup:
   serializedVersion: 2
   m_LocalReferencePoint: {x: 0, y: 3.9011207, z: 0}
   m_Size: 8.227437
-  m_FadeMode: 2
+  m_FadeMode: 1
   m_AnimateCrossFading: 1
   m_LastLODIsBillboard: 0
   m_LODs:
@@ -254,6 +254,7 @@ MonoBehaviour:
   health: 2
   destroyTime: 5
   resourceType: {fileID: 11400000, guid: 1025b580da8b1064c9784cb42e237af4, type: 2}
+  rockBreakFX: {fileID: 0}
   spawnerName: TreeSpawner
 --- !u!1 &1500231203828324
 GameObject:
