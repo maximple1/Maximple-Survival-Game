@@ -37,7 +37,7 @@ MonoBehaviour:
   m_Name: Image Sequence
   m_EditorClassIdentifier: 
   enabled: 1
-  take: 82
+  take: 87
   captureEveryNthFrame: 1
   fileNameGenerator:
     m_Path:

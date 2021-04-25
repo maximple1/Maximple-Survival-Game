@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 7821235219879580903}
   - component: {fileID: 1972881855551000282}
   - component: {fileID: 9152291573729140441}
+  - component: {fileID: 763829249}
   m_Layer: 0
   m_Name: Apple
   m_TagString: Untagged
@@ -125,17 +126,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   item: {fileID: 11400000, guid: 447b20d1eb24e7446b428a3516b04a89, type: 2}
   amount: 1
-  events:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 9152291573729140441}
-        m_MethodName: AddHealth
-        m_Mode: 3
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 10
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+--- !u!114 &763829249
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1105760525757012}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 911f65d1b781cf8459f7099c7aa60578, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  floatUpSpeedLimit: 1.15
+  floatUpSpeed: 35
