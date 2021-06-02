@@ -12,6 +12,7 @@ public class DragAndDropItem : MonoBehaviour, IPointerDownHandler, IPointerUpHan
     public InventorySlot oldSlot;
     private Transform player;
     private QuickslotInventory quickslotInventory; // added this++
+    private CraftManager craftManager;
 
     private void Start()
     {
@@ -20,6 +21,8 @@ public class DragAndDropItem : MonoBehaviour, IPointerDownHandler, IPointerUpHan
         player = GameObject.FindGameObjectWithTag("Player").transform;
         // Находим скрипт InventorySlot в слоте в иерархии
         oldSlot = transform.GetComponentInParent<InventorySlot>();
+
+        craftManager = FindObjectOfType<CraftManager>();
     }
     public void OnDrag(PointerEventData eventData)
     {
@@ -40,7 +43,19 @@ public class DragAndDropItem : MonoBehaviour, IPointerDownHandler, IPointerUpHan
         // Делаем наш DraggableObject ребенком InventoryPanel чтобы DraggableObject был над другими слотами инвенторя
         transform.SetParent(transform.parent.parent.parent);
     }
+    public void ReturnBackToSlot()
+    {
+        if (oldSlot.isEmpty)
+            return;
+        // Делаем картинку опять не прозрачной
+        GetComponentInChildren<Image>().color = new Color(1, 1, 1, 1f);
+        // И чтобы мышка опять могла ее засечь
+        GetComponentInChildren<Image>().raycastTarget = true;
 
+        //Поставить DraggableObject обратно в свой старый слот
+        transform.SetParent(oldSlot.transform);
+        transform.position = oldSlot.transform.position;
+    }
     public void OnPointerUp(PointerEventData eventData)
     {
         if (oldSlot.isEmpty)
@@ -78,6 +93,9 @@ public class DragAndDropItem : MonoBehaviour, IPointerDownHandler, IPointerUpHan
                 itemObject.GetComponent<Item>().amount = oldSlot.amount;
                 // убираем значения InventorySlot
                 NullifySlotData();
+
+                craftManager.currentCraftItem.FillItemDetails();
+
             }
             quickslotInventory.CheckItemInHand();
         }

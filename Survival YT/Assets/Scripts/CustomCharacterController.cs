@@ -16,6 +16,7 @@ public class CustomCharacterController : MonoBehaviour
     private float animationInterpolation = 1f;
     public InventoryManager inventoryManager;
     public QuickslotInventory quickslotInventory;
+    public CraftManager craftManager;
 
 
     public Transform aimTarget;
@@ -78,7 +79,7 @@ public class CustomCharacterController : MonoBehaviour
                 {
                     if (quickslotInventory.activeSlot.item.itemType == ItemType.Instrument)
                     {
-                        if (inventoryManager.isOpened == false)
+                        if (inventoryManager.isOpened == false && craftManager.isOpened == false)
                         {
                             anim.SetBool("Hit", true);
                         }
@@ -159,6 +160,7 @@ public class CustomCharacterController : MonoBehaviour
             if (item.gameObject.activeSelf)
             {
                 item.GetComponent<GatherResources>().GatherResource();
+                craftManager.currentCraftItem.FillItemDetails();
             }
         }
     }

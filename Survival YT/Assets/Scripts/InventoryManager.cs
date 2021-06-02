@@ -8,12 +8,14 @@ public class InventoryManager : MonoBehaviour
     public GameObject UIBG; // renamed
     public GameObject crosshair;
     public Transform inventoryPanel;
+    public GameObject craftPanel;
     public Transform quickslotPanel;
     public List<InventorySlot> slots = new List<InventorySlot>();
     public bool isOpened;
     public float reachDistance = 3f;
     private Camera mainCamera;
     public CinemachineVirtualCamera CVC;
+    private CraftManager craftManager;
     // Start is called before the first frame update
     private void Awake()
     {
@@ -22,7 +24,8 @@ public class InventoryManager : MonoBehaviour
     void Start()
     {
         mainCamera = Camera.main;
-        for(int i = 0; i < inventoryPanel.childCount; i++)
+        craftManager = FindObjectOfType<CraftManager>();
+        for (int i = 0; i < inventoryPanel.childCount; i++)
         {
             if(inventoryPanel.GetChild(i).GetComponent<InventorySlot>() != null)
             {
@@ -47,6 +50,8 @@ public class InventoryManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.I))
         {
             isOpened = !isOpened;
+            craftPanel.gameObject.SetActive(false);
+            craftManager.isOpened = false;
             if (isOpened)
             {
                 UIBG.SetActive(true);
@@ -60,7 +65,6 @@ public class InventoryManager : MonoBehaviour
                 Cursor.lockState = CursorLockMode.None;
                 // и делаем его невидимым
                 Cursor.visible = true;
-
             }
             else
             {
@@ -73,6 +77,13 @@ public class InventoryManager : MonoBehaviour
                 Cursor.lockState = CursorLockMode.Locked;
                 // и делаем его невидимым
                 Cursor.visible = false;
+
+                DragAndDropItem[] dadi = FindObjectsOfType<DragAndDropItem>();
+                foreach(DragAndDropItem slot in dadi)
+                {
+                    slot.ReturnBackToSlot();
+                }
+                
             }
         }
         Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
@@ -85,6 +96,7 @@ public class InventoryManager : MonoBehaviour
                 if (hit.collider.gameObject.GetComponent<Item>() != null)
                 {
                     AddItem(hit.collider.gameObject.GetComponent<Item>().item, hit.collider.gameObject.GetComponent<Item>().amount);
+                    craftManager.currentCraftItem.FillItemDetails();
                     Destroy(hit.collider.gameObject);
                 }
             }
