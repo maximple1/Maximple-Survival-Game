@@ -16,6 +16,7 @@ public class QuickslotInventory : MonoBehaviour
     public Transform itemContainer;
     public InventorySlot activeSlot = null;
     public Transform allWeapons;
+    public Indicators indicators;
 
     // Update is called once per frame
     void Update()
@@ -30,7 +31,7 @@ public class QuickslotInventory : MonoBehaviour
             // Здесь добавляем что случится когда мы УБЕРАЕМ ВЫДЕЛЕНИЕ со слота (Выключить нужный нам предмет, поменять аниматор ...)
 
             // Если крутим колесиком мышки вперед и наше число currentQuickslotID равно последнему слоту, то выбираем наш первый слот (первый слот считается нулевым)
-            if (currentQuickslotID >= quickslotParent.childCount-1)
+            if (currentQuickslotID >= quickslotParent.childCount - 1)
             {
                 currentQuickslotID = 0;
             }
@@ -58,7 +59,7 @@ public class QuickslotInventory : MonoBehaviour
             // Если крутим колесиком мышки назад и наше число currentQuickslotID равно 0, то выбираем наш последний слот
             if (currentQuickslotID <= 0)
             {
-                currentQuickslotID = quickslotParent.childCount-1;
+                currentQuickslotID = quickslotParent.childCount - 1;
             }
             else
             {
@@ -148,33 +149,25 @@ public class QuickslotInventory : MonoBehaviour
 
     private void ChangeCharacteristics()
     {
-        // Если здоровье + добавленное здоровье от предмета меньше или равно 100, то делаем вычисления... 
-        if(int.Parse(healthText.text) + quickslotParent.GetChild(currentQuickslotID).GetComponent<InventorySlot>().item.changeHealth <= 100)
-        {
-            float newHealth = int.Parse(healthText.text) + quickslotParent.GetChild(currentQuickslotID).GetComponent<InventorySlot>().item.changeHealth;
-            healthText.text = newHealth.ToString();
-        }
-        // Иначе, просто ставим здоровье на 100
-        else
-        {
-            healthText.text = "100";
-        }
+        indicators.ChangeFoodAmount(quickslotParent.GetChild(currentQuickslotID).GetComponent<InventorySlot>().item.changeHunger);
+        indicators.ChangeWaterAmount(quickslotParent.GetChild(currentQuickslotID).GetComponent<InventorySlot>().item.changeThirst);
+        indicators.ChangeHealthAmount(quickslotParent.GetChild(currentQuickslotID).GetComponent<InventorySlot>().item.changeHealth);
     }
 
     private void ShowItemInHand()
     {
         HideItemsInHand();
-        if(activeSlot.item == null)
+        if (activeSlot.item == null)
         {
             return;
         }
-        for(int i = 0; i<allWeapons.childCount; i++)
+        for (int i = 0; i < allWeapons.childCount; i++)
         {
             if (activeSlot.item.inHandName == allWeapons.GetChild(i).name)
             {
                 allWeapons.GetChild(i).gameObject.SetActive(true);
             }
-        }  
+        }
     }
     private void HideItemsInHand()
     {

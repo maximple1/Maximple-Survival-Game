@@ -37,7 +37,7 @@ MonoBehaviour:
   m_Name: Image Sequence
   m_EditorClassIdentifier: 
   enabled: 1
-  take: 89
+  take: 91
   captureEveryNthFrame: 1
   fileNameGenerator:
     m_Path:
@@ -65,7 +65,7 @@ MonoBehaviour:
       m_OutputResolution:
         m_CustomWidth: 1024
         m_CustomHeight: 1024
-        imageHeight: 1080
+        imageHeight: 4320
         maxSupportedHeight: 4320
         m_AspectRatio:
           m_CustomAspectX: 1

@@ -19,6 +19,7 @@ MonoBehaviour:
   itemType: 1
   itemDescription: 
   isConsumeable: 1
-  changeHealth: 15
-  changeHunger: 0
-  changeThirst: 0
+  inHandName: 
+  changeHealth: 10
+  changeHunger: 75
+  changeThirst: 25

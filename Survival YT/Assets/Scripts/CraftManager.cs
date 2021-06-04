@@ -44,7 +44,7 @@ public class CraftManager : MonoBehaviour
     }
     public void FillItemDetailsHelper()
     {
-       currentCraftItem.FillItemDetails();
+        currentCraftItem.FillItemDetails();
     }
     // Update is called once per frame
     void Update()
@@ -81,11 +81,11 @@ public class CraftManager : MonoBehaviour
                 // Прекрепляем курсор к середине экрана
                 Cursor.lockState = CursorLockMode.Locked;
                 // и делаем его невидимым
-                Cursor.visible = false;   
+                Cursor.visible = false;
             }
-            
+
         }
-       
+
     }
 
     public void LoadCraftItems(string craftType)

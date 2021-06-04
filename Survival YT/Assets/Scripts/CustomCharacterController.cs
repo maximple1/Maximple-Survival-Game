@@ -17,7 +17,7 @@ public class CustomCharacterController : MonoBehaviour
     public InventoryManager inventoryManager;
     public QuickslotInventory quickslotInventory;
     public CraftManager craftManager;
-
+    public Indicators indicators;
 
     public Transform aimTarget;
     public Transform hitTarget;
@@ -162,6 +162,20 @@ public class CustomCharacterController : MonoBehaviour
                 item.GetComponent<GatherResources>().GatherResource();
                 craftManager.currentCraftItem.FillItemDetails();
             }
+        }
+    }
+    private void OnTriggerEnter(Collider other)
+    {
+        if(other.gameObject.layer == 4)
+        {
+            indicators.isInWater = true;
+        }
+    }
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.gameObject.layer == 4)
+        {
+            indicators.isInWater = false;
         }
     }
 }
