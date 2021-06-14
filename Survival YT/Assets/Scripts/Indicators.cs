@@ -75,7 +75,7 @@ public class Indicators : MonoBehaviour
             healthAmount -= 100 / secondsToEmptyHealth * Time.deltaTime;
         }
         uiHealthAmount = Mathf.Lerp(uiHealthAmount, healthAmount, Time.deltaTime * changeFactor);
-        healthBar.fillAmount = healthAmount / 100;
+        healthBar.fillAmount = uiHealthAmount / 100;
     }
 
     public void ChangeFoodAmount(float changeValue)

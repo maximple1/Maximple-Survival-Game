@@ -37,7 +37,7 @@ MonoBehaviour:
   m_Name: Image Sequence
   m_EditorClassIdentifier: 
   enabled: 1
-  take: 91
+  take: 94
   captureEveryNthFrame: 1
   fileNameGenerator:
     m_Path:
@@ -74,7 +74,7 @@ MonoBehaviour:
       source: 1
       cameraTag: 
       flipFinalOutput: 0
-      captureUI: 1
+      captureUI: 0
     camera360InputSettings:
       source: 2
       cameraTag: 
