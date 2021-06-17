@@ -16,6 +16,7 @@ public class InventoryManager : MonoBehaviour
     private Camera mainCamera;
     public CinemachineVirtualCamera CVC;
     private CraftManager craftManager;
+    [SerializeField] private Transform player;
     // Start is called before the first frame update
     private void Awake()
     {
@@ -104,16 +105,37 @@ public class InventoryManager : MonoBehaviour
     }
     public void AddItem(ItemScriptableObject _item, int _amount)
     {
+        bool allFull = true;
+        foreach (InventorySlot inventorySlot in slots)
+        {
+            if (inventorySlot.isEmpty)
+            {
+                allFull = false;
+                break;
+            }
+        }
+        if (allFull)
+        {
+            GameObject itemObject = Instantiate(_item.itemPrefab, player.position + Vector3.up + player.forward, Quaternion.identity);
+            itemObject.GetComponent<Item>().amount = _amount;
+        }
+        int amount = _amount;
         foreach (InventorySlot slot in slots)
         {
             // Стакаем предметы вместе
             // В слоте уже имеется этот предмет
             if (slot.item == _item)
             {
-                if (slot.amount + _amount <= _item.maximumAmount) {
-                    slot.amount += _amount;
+                if (slot.amount + amount <= _item.maximumAmount) {
+                    slot.amount += amount;
                     slot.itemAmountText.text = slot.amount.ToString();
                     return;
+                }
+                else
+                {
+                    amount -= _item.maximumAmount - slot.amount;
+                    slot.amount = _item.maximumAmount;
+                    slot.itemAmountText.text = slot.amount.ToString();
                 }
                 //break;
                 continue;
@@ -121,18 +143,53 @@ public class InventoryManager : MonoBehaviour
         }
         foreach (InventorySlot slot in slots)
         {
+            if (amount <= 0)
+                return;
             // добавляем предметы в свободные ячейки
             if(slot.isEmpty == true)
             {
                 slot.item = _item;
-                slot.amount = _amount;
+                //slot.amount = amount;
                 slot.isEmpty = false;
                 slot.SetIcon(_item.icon);
-                if (slot.item.maximumAmount != 1) // added this if statement for single items
+                
+                if (amount <= _item.maximumAmount)
                 {
-                    slot.itemAmountText.text = _amount.ToString();
+                    slot.amount = amount;
+                    if (slot.item.maximumAmount != 1) // added this if statement for single items
+                    {
+                        slot.itemAmountText.text = slot.amount.ToString();
+                    }
+                    break;
                 }
-                break;
+                else
+                {
+                    slot.amount = _item.maximumAmount;
+                    amount -= _item.maximumAmount;
+                    if (slot.item.maximumAmount != 1) // added this if statement for single items
+                    {
+                        slot.itemAmountText.text = slot.amount.ToString();
+                    }
+                }
+
+                allFull = true;
+                foreach (InventorySlot inventorySlot in slots)
+                {
+                    if (inventorySlot.isEmpty)
+                    {
+                        allFull = false;
+                        break;
+                    }
+                }
+                if (allFull)
+                {
+                    GameObject itemObject = Instantiate(_item.itemPrefab, player.position + Vector3.up + player.forward, Quaternion.identity);
+                    itemObject.GetComponent<Item>().amount = amount;
+                    Debug.Log("Throw out");
+                    return;
+                }
+
+                // continue;
             }
         }
     }

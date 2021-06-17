@@ -37,8 +37,6 @@ public class CraftQueueManager : MonoBehaviour
 
     public void AddToCraftQueue()
     {
-       
-
         foreach (CraftResource craftResource in currentCraftItem.craftResources)
         {
             int amountToRemove = craftResource.craftObjectAmount * int.Parse(craftAmountInputField.text);
@@ -75,6 +73,8 @@ public class CraftQueueManager : MonoBehaviour
             if(transform.GetChild(i).GetComponent<CraftQueueItemDetails>().currentCraftItem == currentCraftItem)
             {
                 transform.GetChild(i).GetComponent<CraftQueueItemDetails>().craftAmount += int.Parse(craftAmountInputField.text);
+                transform.GetChild(i).GetComponent<CraftQueueItemDetails>().amountText.text = "X" + transform.GetChild(i).GetComponent<CraftQueueItemDetails>().craftAmount.ToString();
+                craftManager.currentCraftItem.FillItemDetails();
                 return;
             }
         }
@@ -91,6 +91,7 @@ public class CraftQueueManager : MonoBehaviour
         craftQueueItemDetails.craftTime = craftTime;
         craftQueueItemDetails.currentCraftItem = currentCraftItem;
 
+        
         craftManager.currentCraftItem.FillItemDetails();
     }
 }

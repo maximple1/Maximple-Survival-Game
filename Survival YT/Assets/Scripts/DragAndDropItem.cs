@@ -109,6 +109,8 @@ public class DragAndDropItem : MonoBehaviour, IPointerDownHandler, IPointerUpHan
             ExchangeSlotData(eventData.pointerCurrentRaycast.gameObject.transform.parent.parent.GetComponent<InventorySlot>());
             quickslotInventory.CheckItemInHand();
         }
+        if (oldSlot.amount <= 0)
+            NullifySlotData();
        
     }
     public void NullifySlotData() // made public 

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Wood
   m_EditorClassIdentifier: 
   itemName: Wood
-  maximumAmount: 100
+  maximumAmount: 10
   itemPrefab: {fileID: 5409882566459502963, guid: 9c53651517da6894c9017d3e136514f1,
     type: 3}
   icon: {fileID: 21300000, guid: 6ecb95c907c0de449a81a28e394c1170, type: 3}
