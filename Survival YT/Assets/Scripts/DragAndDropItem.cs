@@ -13,14 +13,24 @@ public class DragAndDropItem : MonoBehaviour, IPointerDownHandler, IPointerUpHan
     private Transform player;
     private QuickslotInventory quickslotInventory; // added this++
     private CraftManager craftManager;
+    public List<ClothAdder> clothAdders;
+    private Transform _savingEnvironment;
+    
 
     private void Start()
     {
+        _savingEnvironment = GameObject.Find("Saving Environment").transform;
         quickslotInventory = FindObjectOfType<QuickslotInventory>();
         //ПОСТАВЬТЕ ТЭГ "PLAYER" НА ОБЪЕКТЕ ПЕРСОНАЖА!
-        player = GameObject.FindGameObjectWithTag("Player").transform;
+        player = GameObject.FindObjectOfType<CustomCharacterController>().transform;
         // Находим скрипт InventorySlot в слоте в иерархии
         oldSlot = transform.GetComponentInParent<InventorySlot>();
+
+        if (oldSlot.clothType != ClothType.None)
+        {
+            clothAdders = new List<ClothAdder>();
+            clothAdders.AddRange(FindObjectsOfType<ClothAdder>());
+        }
 
         craftManager = FindObjectOfType<CraftManager>();
     }
@@ -71,9 +81,17 @@ public class DragAndDropItem : MonoBehaviour, IPointerDownHandler, IPointerUpHan
         //Если мышка отпущена над объектом по имени UIPanel, то...
         if (eventData.pointerCurrentRaycast.gameObject.name == "UIBG") // renamed to UIBG
         {
+            if (oldSlot.clothType != ClothType.None && oldSlot.item != null)
+            {
+                foreach (ClothAdder clothAdder in clothAdders)
+                {
+                    clothAdder.RemoveClothes(oldSlot.item.clothingPrefab);
+                }
+            }
             if (Input.GetKey(KeyCode.LeftShift))
             {
                 GameObject itemObject = Instantiate(oldSlot.item.itemPrefab, player.position + Vector3.up + player.forward, Quaternion.identity);
+                itemObject.transform.SetParent(_savingEnvironment);
                 itemObject.GetComponent<Item>().amount = Mathf.CeilToInt((float)oldSlot.amount / 2);
                 oldSlot.amount -= Mathf.CeilToInt((float)oldSlot.amount / 2);
                 oldSlot.itemAmountText.text = oldSlot.amount.ToString();
@@ -81,7 +99,7 @@ public class DragAndDropItem : MonoBehaviour, IPointerDownHandler, IPointerUpHan
             else if (Input.GetKey(KeyCode.LeftControl))
             {
                 GameObject itemObject = Instantiate(oldSlot.item.itemPrefab, player.position + Vector3.up + player.forward, Quaternion.identity);
-                // Устанавливаем количество объектов такое какое было в слоте
+                itemObject.transform.SetParent(_savingEnvironment);
                 itemObject.GetComponent<Item>().amount = 1;
                 oldSlot.amount--;
                 oldSlot.itemAmountText.text = oldSlot.amount.ToString();
@@ -89,14 +107,16 @@ public class DragAndDropItem : MonoBehaviour, IPointerDownHandler, IPointerUpHan
             else {
                 // Выброс объектов из инвентаря - Спавним префаб обекта перед персонажем
                 GameObject itemObject = Instantiate(oldSlot.item.itemPrefab, player.position + Vector3.up + player.forward, Quaternion.identity);
+                itemObject.transform.SetParent(_savingEnvironment);
                 // Устанавливаем количество объектов такое какое было в слоте
                 itemObject.GetComponent<Item>().amount = oldSlot.amount;
                 // убираем значения InventorySlot
                 NullifySlotData();
-
                 craftManager.currentCraftItem.FillItemDetails();
 
             }
+
+           
             quickslotInventory.CheckItemInHand();
         }
         else if (eventData.pointerCurrentRaycast.gameObject.transform.parent.parent == null)
@@ -105,9 +125,38 @@ public class DragAndDropItem : MonoBehaviour, IPointerDownHandler, IPointerUpHan
         }
         else if(eventData.pointerCurrentRaycast.gameObject.transform.parent.parent.GetComponent<InventorySlot>() != null)
         {
+            InventorySlot inventorySlot = eventData.pointerCurrentRaycast.gameObject.transform.parent.parent.GetComponent<InventorySlot>();
+            
+            if (oldSlot.clothType != ClothType.None && oldSlot.item != null)
+            {
+                foreach (ClothAdder clothAdder in clothAdders)
+                {
+                    clothAdder.RemoveClothes(oldSlot.item.clothingPrefab);
+                }
+            }
             //Перемещаем данные из одного слота в другой
-            ExchangeSlotData(eventData.pointerCurrentRaycast.gameObject.transform.parent.parent.GetComponent<InventorySlot>());
-            quickslotInventory.CheckItemInHand();
+            if (inventorySlot.clothType != ClothType.None)
+            {
+                if (inventorySlot.clothType == oldSlot.item.clothType)
+                {
+                    ExchangeSlotData(inventorySlot);
+                    foreach (ClothAdder clothAdder in inventorySlot.GetComponentInChildren<DragAndDropItem>().clothAdders)
+                    {
+                        clothAdder.addClothes(inventorySlot.item.clothingPrefab);
+                    }
+                }
+                else
+                {
+                    return;
+                }
+            }
+            else
+            {
+                ExchangeSlotData(inventorySlot);
+                quickslotInventory.CheckItemInHand();
+            }
+
+           
         }
         if (oldSlot.amount <= 0)
             NullifySlotData();
@@ -122,6 +171,7 @@ public class DragAndDropItem : MonoBehaviour, IPointerDownHandler, IPointerUpHan
         oldSlot.iconGO.GetComponent<Image>().color = new Color(1, 1, 1, 0);
         oldSlot.iconGO.GetComponent<Image>().sprite = null;
         oldSlot.itemAmountText.text = "";
+//        _durabilityGameObject.SetActive(false);
     }
     void ExchangeSlotData(InventorySlot newSlot)
     {
@@ -131,6 +181,7 @@ public class DragAndDropItem : MonoBehaviour, IPointerDownHandler, IPointerUpHan
         bool isEmpty = newSlot.isEmpty;
         GameObject iconGO = newSlot.iconGO;
         TMP_Text itemAmountText = newSlot.itemAmountText;
+        float itemDurability = newSlot.itemDurability;
         if(item == null)
         {
             if (oldSlot.item.maximumAmount > 1 && oldSlot.amount > 1)

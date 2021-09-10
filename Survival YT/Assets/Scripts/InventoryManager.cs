@@ -2,12 +2,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class InventoryManager : MonoBehaviour
 {
     public GameObject UIBG; // renamed
     public GameObject crosshair;
     public Transform inventoryPanel;
+    public Transform inventoryAndClothingPanel;
     public GameObject craftPanel;
     public Transform quickslotPanel;
     public List<InventorySlot> slots = new List<InventorySlot>();
@@ -17,6 +19,7 @@ public class InventoryManager : MonoBehaviour
     public CinemachineVirtualCamera CVC;
     private CraftManager craftManager;
     [SerializeField] private Transform player;
+    [SerializeField] private List<ClothAdder> _clothAdders = new List<ClothAdder>();
     // Start is called before the first frame update
     private void Awake()
     {
@@ -26,13 +29,9 @@ public class InventoryManager : MonoBehaviour
     {
         mainCamera = Camera.main;
         craftManager = FindObjectOfType<CraftManager>();
-        for (int i = 0; i < inventoryPanel.childCount; i++)
-        {
-            if(inventoryPanel.GetChild(i).GetComponent<InventorySlot>() != null)
-            {
-                slots.Add(inventoryPanel.GetChild(i).GetComponent<InventorySlot>());
-            }
-        }
+
+            slots.AddRange(inventoryAndClothingPanel.GetComponentsInChildren<InventorySlot>());
+
         for (int i = 0; i < quickslotPanel.childCount; i++)
         {
             if (quickslotPanel.GetChild(i).GetComponent<InventorySlot>() != null)
@@ -42,7 +41,7 @@ public class InventoryManager : MonoBehaviour
         }
 
         UIBG.SetActive(false);
-        inventoryPanel.gameObject.SetActive(false);//new line
+        inventoryAndClothingPanel.gameObject.SetActive(false);//new line
     }
 
     // Update is called once per frame
@@ -56,12 +55,13 @@ public class InventoryManager : MonoBehaviour
             if (isOpened)
             {
                 UIBG.SetActive(true);
-                inventoryPanel.gameObject.SetActive(true); // new line
+                inventoryAndClothingPanel.gameObject.SetActive(true); // new line
                 crosshair.SetActive(false);
-                CVC.GetCinemachineComponent<CinemachinePOV>().m_HorizontalAxis.m_InputAxisName = "";
-                CVC.GetCinemachineComponent<CinemachinePOV>().m_VerticalAxis.m_InputAxisName = "";
-                CVC.GetCinemachineComponent<CinemachinePOV>().m_HorizontalAxis.m_InputAxisValue = 0;
-                CVC.GetCinemachineComponent<CinemachinePOV>().m_VerticalAxis.m_InputAxisValue = 0;
+                CinemachinePOV pov = CVC.GetCinemachineComponent<CinemachinePOV>();
+                pov.m_HorizontalAxis.m_InputAxisName = "";
+                pov.m_VerticalAxis.m_InputAxisName = "";
+                pov.m_HorizontalAxis.m_InputAxisValue = 0;
+                pov.m_VerticalAxis.m_InputAxisValue = 0;
                 // Прекрепляем курсор к середине экрана
                 Cursor.lockState = CursorLockMode.None;
                 // и делаем его невидимым
@@ -70,7 +70,7 @@ public class InventoryManager : MonoBehaviour
             else
             {
                 UIBG.SetActive(false);
-                inventoryPanel.gameObject.SetActive(false); // new line
+                inventoryAndClothingPanel.gameObject.SetActive(false); // new line
                 crosshair.SetActive(true);
                 CVC.GetCinemachineComponent<CinemachinePOV>().m_HorizontalAxis.m_InputAxisName = "Mouse X";
                 CVC.GetCinemachineComponent<CinemachinePOV>().m_VerticalAxis.m_InputAxisName = "Mouse Y";
@@ -103,22 +103,61 @@ public class InventoryManager : MonoBehaviour
             }
         }
     }
-    public void AddItem(ItemScriptableObject _item, int _amount)
+
+    public void RemoveItemFromSlot(int slotId)
     {
-        bool allFull = true;
-        foreach (InventorySlot inventorySlot in slots)
+        InventorySlot slot = slots[slotId];
+        
+        if (slot.clothType != ClothType.None && !slot.isEmpty)
         {
-            if (inventorySlot.isEmpty)
+            foreach (ClothAdder clothAdder in _clothAdders)
             {
-                allFull = false;
-                break;
+                clothAdder.RemoveClothes(slot.item.clothingPrefab);
             }
         }
-        if (allFull)
+        slot.item = null;
+        slot.isEmpty = true;
+        slot.amount = 0;
+        slot.iconGO.GetComponent<Image>().color = new Color(1, 1, 1, 0);
+        slot.iconGO.GetComponent<Image>().sprite = null;
+        slot.itemAmountText.text = "";
+    }
+    public void AddItemToSlot(ItemScriptableObject _item, int _amount, int slotId)
+    {
+        InventorySlot slot = slots[slotId];
+        slot.item = _item;
+        slot.isEmpty = false;
+        slot.SetIcon(_item.icon);
+        
+        if (_amount <= _item.maximumAmount)
         {
-            GameObject itemObject = Instantiate(_item.itemPrefab, player.position + Vector3.up + player.forward, Quaternion.identity);
-            itemObject.GetComponent<Item>().amount = _amount;
+            slot.amount = _amount;
+            if (slot.item.maximumAmount != 1) // added this if statement for single items
+            {
+                slot.itemAmountText.text = slot.amount.ToString();
+            }
         }
+        else
+        {
+            slot.amount = _item.maximumAmount;
+            _amount -= _item.maximumAmount;
+            if (slot.item.maximumAmount != 1) // added this if statement for single items
+            {
+                slot.itemAmountText.text = slot.amount.ToString();
+            }
+        }
+
+        if (slot.clothType != ClothType.None)
+        {
+            foreach (ClothAdder clothAdder in _clothAdders)
+            {
+                clothAdder.addClothes(slot.item.clothingPrefab);
+            }
+        }
+    }
+    public void AddItem(ItemScriptableObject _item, int _amount)
+    {
+       
         int amount = _amount;
         foreach (InventorySlot slot in slots)
         {
@@ -141,6 +180,22 @@ public class InventoryManager : MonoBehaviour
                 continue;
             }
         }
+
+        bool allFull = true;
+        foreach (InventorySlot inventorySlot in slots)
+        {
+            if (inventorySlot.isEmpty)
+            {
+                allFull = false;
+                break;
+            }
+        }
+        if (allFull)
+        {
+            GameObject itemObject = Instantiate(_item.itemPrefab, player.position + Vector3.up + player.forward, Quaternion.identity);
+            itemObject.GetComponent<Item>().amount = _amount;
+        }
+
         foreach (InventorySlot slot in slots)
         {
             if (amount <= 0)

@@ -9,7 +9,7 @@ public class CraftManager : MonoBehaviour
 {
     public bool isOpened;
     public GameObject craftingPanel;
-    public GameObject inventoryPanel;
+    public GameObject inventoryAndClothingPanel;
 
 
     public Transform craftItemsPanel;
@@ -54,7 +54,7 @@ public class CraftManager : MonoBehaviour
             isOpened = !isOpened;
 
             GetComponent<InventoryManager>().isOpened = false;
-            inventoryPanel.gameObject.SetActive(false);
+            inventoryAndClothingPanel.gameObject.SetActive(false);
             if (isOpened)
             {
                 craftingPanel.SetActive(true);

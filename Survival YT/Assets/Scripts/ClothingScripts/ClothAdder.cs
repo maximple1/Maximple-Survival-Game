@@ -10,11 +10,13 @@ public class ClothAdder : MonoBehaviour
     [SerializeField] private GameObject chestPlatePrefab;
     [SerializeField] private GameObject armorMaskPrefab;
     [SerializeField] private SkinnedMeshRenderer playerSkin;
+    [SerializeField] private List<GameObject> _equipedClothes;
+
 
     // Start is called before the first frame update
     void Start()
     {
-        
+        _equipedClothes = new List<GameObject>();
     }
 
     // Update is called once per frame
@@ -41,7 +43,7 @@ public class ClothAdder : MonoBehaviour
             addClothes(armorMaskPrefab);
         }
     }
-    void addClothes(GameObject clothPrefab)
+    public void addClothes(GameObject clothPrefab)
     {
         GameObject clothObj = Instantiate(clothPrefab, playerSkin.transform.parent);
         SkinnedMeshRenderer[] renderers = clothObj.GetComponentsInChildren<SkinnedMeshRenderer>();
@@ -50,5 +52,20 @@ public class ClothAdder : MonoBehaviour
             renderer.bones = playerSkin.bones;
             renderer.rootBone = playerSkin.rootBone;
         }
+        _equipedClothes.Add(clothObj);
+    }
+
+    public void RemoveClothes(GameObject searchedClothObject)
+    {
+        foreach (GameObject clothObj in _equipedClothes)
+        {
+            if (clothObj.name.Contains(searchedClothObject.name))
+            {
+                _equipedClothes.Remove(clothObj);
+                Destroy(clothObj);
+                return;
+            }
+        }
+        
     }
 }

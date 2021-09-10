@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 public class FillCraftItemDetails : MonoBehaviour
 {
+    
     public CraftScriptableObject currentCraftItem;
     private CraftManager craftManager;
     public GameObject craftResourcePrefab;

@@ -166,6 +166,7 @@ public class QuickslotInventory : MonoBehaviour
             if (activeSlot.item.inHandName == allWeapons.GetChild(i).name)
             {
                 allWeapons.GetChild(i).gameObject.SetActive(true);
+//                allWeapons.GetChild(i).GetComponent<ItemDurability>().inventorySlot = activeSlot;
             }
         }
     }

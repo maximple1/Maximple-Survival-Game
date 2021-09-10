@@ -1,0 +1,11 @@
+﻿# Default ignored files
+/shelf/
+/workspace.xml
+# Rider ignored files
+/modules.xml
+/contentModel.xml
+/projectSettingsUpdater.xml
+/.idea.Survival YT.iml
+# Datasource local storage ignored files
+/dataSources/
+/dataSources.local.xml

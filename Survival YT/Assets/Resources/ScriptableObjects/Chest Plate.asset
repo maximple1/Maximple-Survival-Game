@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2bf68128269ecf74b9e3f31910c66410, type: 3}
+  m_Name: Chest Plate
+  m_EditorClassIdentifier: 
+  itemName: Chest Plate
+  maximumAmount: 1
+  itemPrefab: {fileID: 866176006895079890, guid: cc99fe9f31300b54a9233715646e80d0,
+    type: 3}
+  clothingPrefab: {fileID: 919132149155446097, guid: 729424181b9e0904b965e9292de2c3b3,
+    type: 3}
+  icon: {fileID: 21300000, guid: 33d7f1ce4f4d95741a4f305633738618, type: 3}
+  itemType: 0
+  clothType: 3
+  itemDescription: 
+  isConsumeable: 0
+  inHandName: 
+  changeHealth: 0
+  changeHunger: 0
+  changeThirst: 0

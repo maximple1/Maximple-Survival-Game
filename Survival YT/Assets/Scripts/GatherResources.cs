@@ -10,6 +10,9 @@ public class GatherResources : MonoBehaviour
     public ItemScriptableObject resource;
     public int resourceAmount;
     public GameObject hitFX;
+    [SerializeField] private ItemDurability _itemDurability;
+
+
 
     public void GatherResource()
     {
@@ -25,6 +28,7 @@ public class GatherResources : MonoBehaviour
                     if (hit.collider.GetComponent<ResourceHealth>().health >= 1)
                     {
                         Instantiate(hitFX, hit.point, Quaternion.LookRotation(hit.normal));
+//                        _itemDurability.SubtractDurabilityPerHit();
                         inventoryManager.AddItem(resource, resourceAmount);
                         hit.collider.GetComponent<ResourceHealth>().health--;
                         if (hit.collider.GetComponent<ResourceHealth>().health <= 0 && hit.collider.gameObject.layer == 9)
@@ -40,5 +44,10 @@ public class GatherResources : MonoBehaviour
                 }
             }
         }
+    }
+
+    public void TestFunc()
+    {
+        
     }
 }

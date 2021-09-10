@@ -70,7 +70,6 @@ public class CustomCharacterController : MonoBehaviour
 
     private void Update()
     {
-   
         if (Input.GetKeyDown(KeyCode.Mouse0))
         {
             if(quickslotInventory.activeSlot != null)
@@ -120,7 +119,7 @@ public class CustomCharacterController : MonoBehaviour
         {
             anim.SetTrigger("Jump");
         }
-
+        
         Ray desiredTargetRay = mainCamera.GetComponent<Camera>().ScreenPointToRay(new Vector2(Screen.width / 2, Screen.height / 2));
         Vector3 desiredTargetPosition = desiredTargetRay.origin + desiredTargetRay.direction * 1.5f; // changed from 0.7 to 1.5
         aimTarget.position = desiredTargetPosition;
