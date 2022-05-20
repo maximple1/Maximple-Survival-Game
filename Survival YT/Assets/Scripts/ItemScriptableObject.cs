@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
-public enum ItemType {Default,Food,Weapon,Instrument}
+public enum ItemType {Default,Food,Weapon,Instrument, BuildingBlock}
 public enum ClothType{None,Head,Body,BodyArmor,Legs,Feet}
 public class ItemScriptableObject : ScriptableObject
 {

@@ -12,11 +12,23 @@ public class ClothAdder : MonoBehaviour
     [SerializeField] private SkinnedMeshRenderer playerSkin;
     [SerializeField] private List<GameObject> _equipedClothes;
 
+    [SerializeField] private bool _putAllClothes;
+    
+
 
     // Start is called before the first frame update
     void Start()
     {
         _equipedClothes = new List<GameObject>();
+        
+        if (_putAllClothes)
+        {
+            addClothes(topPrefab);
+            addClothes(pantsPrefab);
+            addClothes(shoesPrefab);
+            addClothes(chestPlatePrefab);
+            addClothes(armorMaskPrefab);
+        }
     }
 
     // Update is called once per frame

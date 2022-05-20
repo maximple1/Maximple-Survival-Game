@@ -72,6 +72,11 @@ namespace EnvSpawn
 #endif
 		}
 
+		private void Start()
+		{
+			//Generate();
+		}
+
 		public void Generate()
 		{
 			GeneratePositionings();

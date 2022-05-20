@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2bf68128269ecf74b9e3f31910c66410, type: 3}
+  m_Name: Doors
+  m_EditorClassIdentifier: 
+  itemName: Wooden Doors
+  maximumAmount: 5
+  itemPrefab: {fileID: 9200293482015481991, guid: d9072f3b1e8277041805acf181514a9e,
+    type: 3}
+  clothingPrefab: {fileID: 0}
+  icon: {fileID: 21300000, guid: 76b5bed8a16f0474cb7dae35fcf3a690, type: 3}
+  itemType: 4
+  clothType: 0
+  itemDescription: 
+  isConsumeable: 1
+  inHandName: 
+  canBreak: 0
+  changeHealth: 0
+  changeHunger: 0
+  changeThirst: 0

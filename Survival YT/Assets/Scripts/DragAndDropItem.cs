@@ -115,9 +115,8 @@ public class DragAndDropItem : MonoBehaviour, IPointerDownHandler, IPointerUpHan
                 craftManager.currentCraftItem.FillItemDetails();
 
             }
-
-           
             quickslotInventory.CheckItemInHand();
+            quickslotInventory.ShowBuildingBlock();
         }
         else if (eventData.pointerCurrentRaycast.gameObject.transform.parent.parent == null)
         {
@@ -154,9 +153,8 @@ public class DragAndDropItem : MonoBehaviour, IPointerDownHandler, IPointerUpHan
             {
                 ExchangeSlotData(inventorySlot);
                 quickslotInventory.CheckItemInHand();
+                quickslotInventory.ShowBuildingBlock();
             }
-
-           
         }
         if (oldSlot.amount <= 0)
             NullifySlotData();

@@ -17,6 +17,7 @@ public class QuickslotInventory : MonoBehaviour
     public InventorySlot activeSlot = null;
     public Transform allWeapons;
     public Indicators indicators;
+    public BuildingSystem buildingSystem;
 
     // Update is called once per frame
     void Update()
@@ -42,9 +43,7 @@ public class QuickslotInventory : MonoBehaviour
             }
             // Берем предыдущий слот и меняем его картинку на "выбранную"
 
-            quickslotParent.GetChild(currentQuickslotID).GetComponent<Image>().sprite = selectedSprite;
-            activeSlot = quickslotParent.GetChild(currentQuickslotID).GetComponent<InventorySlot>();
-            ShowItemInHand();
+            SelectSlot();
             // Здесь добавляем что случится когда мы ВЫДЕЛЯЕМ слот (Включить нужный нам предмет, поменять аниматор ...)
 
         }
@@ -68,9 +67,7 @@ public class QuickslotInventory : MonoBehaviour
             }
             // Берем предыдущий слот и меняем его картинку на "выбранную"
 
-            quickslotParent.GetChild(currentQuickslotID).GetComponent<Image>().sprite = selectedSprite;
-            activeSlot = quickslotParent.GetChild(currentQuickslotID).GetComponent<InventorySlot>();
-            ShowItemInHand();
+            SelectSlot();
             // Здесь добавляем что случится когда мы ВЫДЕЛЯЕМ слот (Включить нужный нам предмет, поменять аниматор ...)
 
         }
@@ -85,17 +82,14 @@ public class QuickslotInventory : MonoBehaviour
                     // Ставим картинку "selected" на слот если он "not selected" или наоборот
                     if (quickslotParent.GetChild(currentQuickslotID).GetComponent<Image>().sprite == notSelectedSprite)
                     {
-                        quickslotParent.GetChild(currentQuickslotID).GetComponent<Image>().sprite = selectedSprite;
-                        activeSlot = quickslotParent.GetChild(currentQuickslotID).GetComponent<InventorySlot>();
-                        ShowItemInHand();
-                        //foreach ...
+                        SelectSlot();
                     }
                     else
                     {
                         quickslotParent.GetChild(currentQuickslotID).GetComponent<Image>().sprite = notSelectedSprite;
                         activeSlot = null;
                         HideItemsInHand();
-                        //foreach ...
+                        HideBuildingBlock();
 
                     }
                 }
@@ -106,9 +100,7 @@ public class QuickslotInventory : MonoBehaviour
 
                     currentQuickslotID = i;
 
-                    quickslotParent.GetChild(currentQuickslotID).GetComponent<Image>().sprite = selectedSprite;
-                    activeSlot = quickslotParent.GetChild(currentQuickslotID).GetComponent<InventorySlot>();
-                    ShowItemInHand();
+                    SelectSlot();
                 }
             }
         }
@@ -117,22 +109,74 @@ public class QuickslotInventory : MonoBehaviour
         {
             if (quickslotParent.GetChild(currentQuickslotID).GetComponent<InventorySlot>().item != null)
             {
-                if (quickslotParent.GetChild(currentQuickslotID).GetComponent<InventorySlot>().item.isConsumeable && !inventoryManager.isOpened && quickslotParent.GetChild(currentQuickslotID).GetComponent<Image>().sprite == selectedSprite)
+                if (quickslotParent.GetChild(currentQuickslotID).GetComponent<InventorySlot>().item.isConsumeable &&
+                    !inventoryManager.isOpened &&
+                    quickslotParent.GetChild(currentQuickslotID).GetComponent<Image>().sprite == selectedSprite)
                 {
                     // Применяем изменения к здоровью (будущем к голоду и жажде) 
                     ChangeCharacteristics();
 
-                    if (quickslotParent.GetChild(currentQuickslotID).GetComponent<InventorySlot>().amount <= 1)
+                    if (buildingSystem.CanPlace())
                     {
-                        quickslotParent.GetChild(currentQuickslotID).GetComponentInChildren<DragAndDropItem>().NullifySlotData();
-                    }
-                    else
-                    {
-                        quickslotParent.GetChild(currentQuickslotID).GetComponent<InventorySlot>().amount--;
-                        quickslotParent.GetChild(currentQuickslotID).GetComponent<InventorySlot>().itemAmountText.text = quickslotParent.GetChild(currentQuickslotID).GetComponent<InventorySlot>().amount.ToString();
+                        buildingSystem.PlaceBlock();
+                        RemoveConsumableItem();
+                        ShowBuildingBlock();
                     }
                 }
             }
+        }
+    }
+
+    private void SelectSlot()
+    {
+        quickslotParent.GetChild(currentQuickslotID).GetComponent<Image>().sprite = selectedSprite;
+        activeSlot = quickslotParent.GetChild(currentQuickslotID).GetComponent<InventorySlot>();
+        ShowItemInHand();
+        ShowBuildingBlock();
+    }
+    
+    private void HideBuildingBlock()
+    {
+        buildingSystem.enabled = false;
+    }
+    public void ShowBuildingBlock()
+    {
+        if (activeSlot == null)
+        {
+            buildingSystem.enabled = false;
+            return;
+        }
+
+        if(activeSlot.item == null)
+        {
+            buildingSystem.enabled = false;
+            return;
+        }
+
+        if (activeSlot.item.itemType == ItemType.BuildingBlock)
+        {
+            buildingSystem.enabled = true;
+            buildingSystem.currentBuildingBlock = activeSlot.item.itemPrefab;
+            buildingSystem.ChangeBuildingBlock();
+        }
+        else
+        {
+            buildingSystem.enabled = false;
+        }
+    }
+    private void RemoveConsumableItem()
+    {
+        if (quickslotParent.GetChild(currentQuickslotID).GetComponent<InventorySlot>().amount <= 1)
+        {
+            quickslotParent.GetChild(currentQuickslotID).GetComponentInChildren<DragAndDropItem>()
+                .NullifySlotData();
+        }
+        else
+        {
+            quickslotParent.GetChild(currentQuickslotID).GetComponent<InventorySlot>().amount--;
+            quickslotParent.GetChild(currentQuickslotID).GetComponent<InventorySlot>().itemAmountText
+                .text = quickslotParent.GetChild(currentQuickslotID).GetComponent<InventorySlot>()
+                .amount.ToString();
         }
     }
     public void CheckItemInHand()
@@ -149,9 +193,15 @@ public class QuickslotInventory : MonoBehaviour
 
     private void ChangeCharacteristics()
     {
-        indicators.ChangeFoodAmount(quickslotParent.GetChild(currentQuickslotID).GetComponent<InventorySlot>().item.changeHunger);
-        indicators.ChangeWaterAmount(quickslotParent.GetChild(currentQuickslotID).GetComponent<InventorySlot>().item.changeThirst);
-        indicators.ChangeHealthAmount(quickslotParent.GetChild(currentQuickslotID).GetComponent<InventorySlot>().item.changeHealth);
+        InventorySlot itemSlot = quickslotParent.GetChild(currentQuickslotID).GetComponent<InventorySlot>();
+        if(itemSlot.item.changeHunger == 0 && itemSlot.item.changeThirst == 0 && itemSlot.item.changeHealth == 0)
+            return;
+        
+        indicators.ChangeFoodAmount(itemSlot.item.changeHunger);
+        indicators.ChangeWaterAmount(itemSlot.item.changeThirst);
+        indicators.ChangeHealthAmount(itemSlot.item.changeHealth);
+        
+        RemoveConsumableItem();
     }
 
     private void ShowItemInHand()
